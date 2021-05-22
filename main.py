@@ -49,4 +49,4 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(gParams, lr=lr, betas=(0.9, 0.999), eps=1e-8)
 
     logs = {"epoch": [], "iter": [], "saveStep": 10, "logging_step": 1000}
-    run(trainDataset, valDataset, batchSize, 'samecomposer', cpcModel, cpcCriterion, 5, optimizer, logs)
+    run(trainDataset, valDataset, batchSize, 'samecategory', cpcModel, cpcCriterion, 5, optimizer, logs)
