@@ -55,7 +55,7 @@ def trainStep(dataLoader,
         batchData = batchData.cuda(non_blocking=True)
         label = label.cuda(non_blocking=True)
         c_feature, encoded_data, label = cpcModel(batchData, label)
-        allLosses, allAcc = cpcCriterion(c_feature, encoded_data, label)
+        allLosses, allAcc = cpcCriterion(c_feature, encoded_data)
         totLoss = allLosses.sum()
 
         totLoss.backward()
@@ -109,7 +109,7 @@ def valStep(dataLoader,
 
         with torch.no_grad():
             c_feature, encoded_data, label = cpcModel(batchData, label)
-            allLosses, allAcc = cpcCriterion(c_feature, encoded_data, label)
+            allLosses, allAcc = cpcCriterion(c_feature, encoded_data)
 
         if "locLoss_val" not in logs:
             logs["locLoss_val"] = np.zeros(allLosses.size(1))
