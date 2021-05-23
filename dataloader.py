@@ -10,6 +10,7 @@ import random
 import time
 import pickle
 import re
+import numpy as np
 
 
 class AudioBatchData(Dataset):
@@ -267,7 +268,6 @@ class AudioLoader(object):
                 # print("Data loader yielded batch #: ", j)
                 yield x
             # print("Len data loader: ", len(dataloader), "And consummed: ", j + 1)
-            assert False
             if i < self.nLoop - 1:
                 self.updateCall()
 
@@ -313,7 +313,6 @@ class SequentialSampler(Sampler):
     def __len__(self):
         return self.len
 
-import numpy as np
 
 class SameTrackSampler(Sampler):
 
@@ -343,7 +342,8 @@ class SameTrackSampler(Sampler):
         # print("Size samplers over batch size:\n", np.array(self.sizeSamplers) // self.batchSize)
 
         order = [(x, torch.randperm(val).tolist())
-                 for x, val in enumerate(self.sizeSamplers) if val > 0]  # (index of seq/cat, randomly permuted numbers from 0 to num windows in seq(cat))
+                 for x, val in enumerate(self.sizeSamplers) if
+                 val > 0]  # (index of seq/cat, randomly permuted numbers from 0 to num windows in seq(cat))
 
         # Build Batches
         self.batches = []
