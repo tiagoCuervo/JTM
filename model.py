@@ -266,7 +266,7 @@ class CPCUnsupersivedCriterion(BaseCriterion):
             else:
                 posSeq = encodedData[:, k:]
 
-            posSeq = posSeq.view(batchSize, 1, posSeq.size(1), dimEncoded)
+            posSeq = posSeq.view(batchSize, 1, windowSize, dimEncoded)
             fullSeq = torch.cat((posSeq, negExt), dim=1)
             outputs.append(fullSeq)
 
@@ -295,8 +295,11 @@ class CPCUnsupersivedCriterion(BaseCriterion):
         outAcc = [0 for _ in range(self.nPredicts)]
 
         for k, locPreds in enumerate(predictions[:self.nPredicts]):
-            locPreds = locPreds.permute(0, 2, 1)
-            locPreds = locPreds.contiguous().view(-1, locPreds.size(2))
+            locPreds = locPreds.permute(0, 2, 1)  # (batchSize, 1 + negativeSamplingExt, windowSize) to
+            #                                       (batchSize, windowSize, 1 + negativeSamplingExt)
+            locPreds = locPreds.contiguous().view(
+                -1, locPreds.size(2))  # (batchSize, windowSize, 1 + negativeSamplingExt) to
+            #                            (batchSize * windowSize, 1 + negativeSamplingExt)
             lossK = self.lossCriterion(locPreds, labelLoss)
             outLosses[k] += lossK.view(1, -1)
             _, predsIndex = locPreds.max(1)

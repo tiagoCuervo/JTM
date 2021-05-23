@@ -2,7 +2,9 @@ import numpy as np
 import torch
 import time
 from copy import deepcopy
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+import json
+
 
 def update_logs(logs, logStep, prevlogs=None):
     out = {}
@@ -13,6 +15,22 @@ def update_logs(logs, logStep, prevlogs=None):
             out[key] -= prevlogs[key]
         out[key] /= logStep
     return out
+
+
+def save_logs(data, pathLogs):
+    with open(pathLogs, 'w') as file:
+        json.dump(data, file, indent=2)
+
+
+def save_checkpoint(model_state, criterion_state, optimizer_state, best_state,
+                    path_checkpoint):
+
+    state_dict = {"gEncoder": model_state,
+                  "cpcCriterion": criterion_state,
+                  "optimizer": optimizer_state,
+                  "best": best_state}
+
+    torch.save(state_dict, path_checkpoint)
 
 
 def show_logs(text, logs):
@@ -148,9 +166,12 @@ def run(trainDataset,
         cpcCriterion,
         nEpoch,
         optimizer,
+        pathCheckpoint,
         logs):
     print(f"Running {nEpoch} epochs")
     startEpoch = len(logs["epoch"])
+    bestAcc = 0
+    bestStateDict = None
     startTime = time.time()
 
     for epoch in range(startEpoch, nEpoch):
@@ -174,6 +195,10 @@ def run(trainDataset,
 
         torch.cuda.empty_cache()
 
+        currentAccuracy = float(locLogsVal["locAcc_val"].mean())
+        if currentAccuracy > bestAcc:
+            bestStateDict = cpcModel.state_dict()
+
         for key, value in dict(locLogsTrain, **locLogsVal).items():
             if key not in logs:
                 logs[key] = [None for _ in range(epoch)]
@@ -182,3 +207,11 @@ def run(trainDataset,
             logs[key].append(value)
 
         logs["epoch"].append(epoch)
+
+        if pathCheckpoint is not None and (epoch % logs["saveStep"] == 0 or epoch == nEpoch - 1):
+            modelStateDict = cpcModel.state_dict()
+            criterionStateDict = cpcCriterion.state_dict()
+
+            save_checkpoint(modelStateDict, criterionStateDict, optimizer.state_dict(), bestStateDict,
+                            f"{pathCheckpoint}_{epoch}.pt")
+            save_logs(logs, pathCheckpoint + "_logs.json")
