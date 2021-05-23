@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import time
 from copy import deepcopy
-
+import matplotlib.pyplot as plt
 
 def update_logs(logs, logStep, prevlogs=None):
     out = {}
@@ -51,6 +51,21 @@ def trainStep(dataLoader,
     iterCtr = 0
     for step, fulldata in enumerate(dataLoader):
         batchData, label = fulldata
+        # if step % 100 == 0:
+        #     print("Step: ", step)
+        #     print("Batch shape: ", batchData.shape)
+        #     print("Labels: ", label)
+        #     plt.figure()
+        #     plt.plot(batchData[0, :, :].view(-1).detach().cpu().numpy())
+        #     plt.plot(batchData[1, :, :].view(-1).detach().cpu().numpy())
+        #     plt.plot(batchData[2, :, :].view(-1).detach().cpu().numpy())
+        #     plt.plot(batchData[3, :, :].view(-1).detach().cpu().numpy())
+        #     plt.plot(batchData[4, :, :].view(-1).detach().cpu().numpy())
+        #     plt.plot(batchData[5, :, :].view(-1).detach().cpu().numpy())
+        #     plt.plot(batchData[6, :, :].view(-1).detach().cpu().numpy())
+        #     plt.plot(batchData[7, :, :].view(-1).detach().cpu().numpy())
+        #     plt.show()
+        # assert False
         n_examples += batchData.size(0)
         batchData = batchData.cuda(non_blocking=True)
         label = label.cuda(non_blocking=True)
@@ -141,7 +156,6 @@ def run(trainDataset,
     for epoch in range(startEpoch, nEpoch):
 
         print(f"Starting epoch {epoch}")
-
         trainLoader = trainDataset.getDataLoader(batchSize, samplingMode,
                                                  True, numWorkers=0)
 

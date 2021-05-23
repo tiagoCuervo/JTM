@@ -42,7 +42,10 @@ class AudioBatchData(Dataset):
         self.sequencesData[labelsBy] = self.sequencesData[labelsBy].astype('category')
         self.sequencesData[labelsBy] = self.sequencesData[labelsBy].cat.codes
 
-        self.labels = list(range(len(self.sequencesData[labelsBy].values)))
+        self.totSize = self.sequencesData['length'].sum()
+        # print("Total size:", self.totSize)
+        # print("Length of data set:", self.__len__())
+
         self.category = labelsBy
 
         if outputPath is None:
@@ -137,7 +140,6 @@ class AudioBatchData(Dataset):
             for i, packagePath in enumerate(self.packs[self.currentPack]):
                 with open(self.chunksDir / packagePath, 'rb') as handle:
                     self.data[packageIdx[i]:packageIdx[i + 1]] = pickle.load(handle)
-            self.totSize = len(self.data)
             print(f'Loaded {len(self.seqLabel) - 1} sequences, elapsed={time.time() - startTime:.3f} secs')
 
         self.nextPack = (self.currentPack + 1) % len(self.packs)
@@ -256,8 +258,16 @@ class AudioLoader(object):
             dataloader = DataLoader(self.dataset,
                                     batch_sampler=sampler,
                                     num_workers=self.numWorkers)
-            for x in dataloader:
+            # print("Data loader nLoop: ", self.nLoop)
+            # print("Len data loader: ", len(dataloader))
+            # print("Len of sampler: ", len(sampler))
+            # assert False
+            # print("Dataloader len: \n", len(dataloader))
+            for j, x in enumerate(dataloader):
+                # print("Data loader yielded batch #: ", j)
                 yield x
+            # print("Len data loader: ", len(dataloader), "And consummed: ", j + 1)
+            assert False
             if i < self.nLoop - 1:
                 self.updateCall()
 
@@ -303,6 +313,7 @@ class SequentialSampler(Sampler):
     def __len__(self):
         return self.len
 
+import numpy as np
 
 class SameTrackSampler(Sampler):
 
@@ -323,31 +334,38 @@ class SameTrackSampler(Sampler):
         nWindows = len(self.samplingIntervals) - 1
         self.sizeSamplers = [(self.samplingIntervals[i + 1] -
                               self.samplingIntervals[i]) // self.sizeWindow
-                             for i in range(nWindows)]
+                             for i in range(nWindows)]  # How many windows a sequence/category lasts 
 
+        # assert False
         if self.offset > 0:
             self.sizeSamplers = [max(0, x - 1) for x in self.sizeSamplers]
+        # print("Size samplers:\n", self.sizeSamplers)
+        # print("Size samplers over batch size:\n", np.array(self.sizeSamplers) // self.batchSize)
 
         order = [(x, torch.randperm(val).tolist())
-                 for x, val in enumerate(self.sizeSamplers) if val > 0]
+                 for x, val in enumerate(self.sizeSamplers) if val > 0]  # (index of seq/cat, randomly permuted numbers from 0 to num windows in seq(cat))
 
         # Build Batches
         self.batches = []
         for indexSampler, randperm in order:
             indexStart, sizeSampler = 0, self.sizeSamplers[indexSampler]
-            while indexStart < sizeSampler:
-                indexEnd = min(sizeSampler, indexStart + self.batchSize)
+            while indexStart < (sizeSampler - self.batchSize):
+                indexEnd = indexStart + self.batchSize
                 locBatch = [self.getIndex(x, indexSampler)
                             for x in randperm[indexStart:indexEnd]]
                 indexStart = indexEnd
                 self.batches.append(locBatch)
+        # print("Number of batches:\n", len(self.batches))
+        # print("Batches:\n", self.batches)
+        # print("Batches shape: \n", np.array(self.batches).shape)
+        # print("Batches vstack shape: \n", np.vstack(self.batches).shape)
+        self.batches = np.vstack(self.batches)
 
     def __len__(self):
         return len(self.batches)
 
     def getIndex(self, x, iInterval):
-        return self.offset + x * self.sizeWindow \
-               + self.samplingIntervals[iInterval]
+        return self.offset + x * self.sizeWindow + self.samplingIntervals[iInterval]
 
     def __iter__(self):
         random.shuffle(self.batches)
