@@ -59,7 +59,8 @@ def trainStep(dataLoader,
               cpcModel,
               cpcCriterion,
               optimizer,
-              loggingStep):
+              loggingStep,
+              useGPU):
     cpcModel.train()
     cpcCriterion.train()
 
@@ -85,8 +86,9 @@ def trainStep(dataLoader,
         #     plt.show()
         # assert False
         n_examples += batchData.size(0)
-        batchData = batchData.cuda(non_blocking=True)
-        label = label.cuda(non_blocking=True)
+        if useGPU:
+            batchData = batchData.cuda(non_blocking=True)
+            label = label.cuda(non_blocking=True)
         c_feature, encoded_data, label = cpcModel(batchData, label)
         allLosses, allAcc = cpcCriterion(c_feature, encoded_data)
         totLoss = allLosses.sum()
@@ -125,7 +127,8 @@ def trainStep(dataLoader,
 
 def valStep(dataLoader,
             cpcModel,
-            cpcCriterion):
+            cpcCriterion,
+            useGPU):
     cpcCriterion.eval()
     cpcModel.eval()
     logs = {}
@@ -137,8 +140,9 @@ def valStep(dataLoader,
 
         batchData, label = fulldata
 
-        batchData = batchData.cuda(non_blocking=True)
-        label = label.cuda(non_blocking=True)
+        if useGPU:
+            batchData = batchData.cuda(non_blocking=True)
+            label = label.cuda(non_blocking=True)
 
         with torch.no_grad():
             c_feature, encoded_data, label = cpcModel(batchData, label)
@@ -167,7 +171,8 @@ def run(trainDataset,
         nEpoch,
         optimizer,
         pathCheckpoint,
-        logs):
+        logs,
+        useGPU):
     print(f"Running {nEpoch} epochs")
     startEpoch = len(logs["epoch"])
     bestAcc = 0
@@ -186,14 +191,15 @@ def run(trainDataset,
         print("Training dataset %d batches, Validation dataset %d batches, batch size %d" %
               (len(trainLoader), len(valLoader), batchSize))
 
-        locLogsTrain = trainStep(trainLoader, cpcModel, cpcCriterion, optimizer, logs["logging_step"])
+        locLogsTrain = trainStep(trainLoader, cpcModel, cpcCriterion, optimizer, logs["logging_step"], useGPU)
 
-        locLogsVal = valStep(valLoader, cpcModel, cpcCriterion)
+        locLogsVal = valStep(valLoader, cpcModel, cpcCriterion, useGPU)
 
         print(f'Ran {epoch + 1} epochs '
               f'in {time.time() - startTime:.2f} seconds')
 
-        torch.cuda.empty_cache()
+        if useGPU:
+            torch.cuda.empty_cache()
 
         currentAccuracy = float(locLogsVal["locAcc_val"].mean())
         if currentAccuracy > bestAcc:

@@ -46,8 +46,12 @@ if __name__ == '__main__':
                                             negativeSamplingExt=128,
                                             mode=None,
                                             dropout=False)
-    cpcCriterion.cuda()
-    cpcModel.cuda()
+    useGPU = torch.cuda.is_available()
+
+    if useGPU:
+        cpcCriterion.cuda()
+        cpcModel.cuda()
+
     gParams = list(cpcCriterion.parameters()) + list(cpcModel.parameters())
     lr = 2e-4
     optimizer = torch.optim.Adam(gParams, lr=lr, betas=(0.9, 0.999), eps=1e-8)
@@ -62,4 +66,5 @@ if __name__ == '__main__':
     pathCheckpoint = os.path.join(pathCheckpoint, "checkpoint")
 
     logs = {"epoch": [], "iter": [], "saveStep": 1, "logging_step": 1000}
-    run(trainDataset, valDataset, batchSize, samplingType, cpcModel, cpcCriterion, 30, optimizer, pathCheckpoint, logs)
+    run(trainDataset, valDataset, batchSize, samplingType, cpcModel, cpcCriterion, 30, optimizer, pathCheckpoint, logs,
+        useGPU)
