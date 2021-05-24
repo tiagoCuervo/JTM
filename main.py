@@ -66,5 +66,6 @@ if __name__ == '__main__':
     pathCheckpoint = os.path.join(pathCheckpoint, "checkpoint")
 
     logs = {"epoch": [], "iter": [], "saveStep": 1, "logging_step": 1000}
+
     run(trainDataset, valDataset, batchSize, samplingType, cpcModel, cpcCriterion, 30, optimizer, pathCheckpoint, logs,
         useGPU)

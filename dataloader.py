@@ -267,7 +267,7 @@ class AudioLoader(object):
             for j, x in enumerate(dataloader):
                 # print("Data loader yielded batch #: ", j)
                 yield x
-            # print("Len data loader: ", len(dataloader), "And consummed: ", j + 1)
+            # print("Len data loader: ", len(dataloader), "and consummed: ", j + 1)
             if i < self.nLoop - 1:
                 self.updateCall()
 

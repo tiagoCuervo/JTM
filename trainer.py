@@ -172,52 +172,63 @@ def run(trainDataset,
         optimizer,
         pathCheckpoint,
         logs,
-        useGPU):
+        useGPU,
+        log2Board=False):
     print(f"Running {nEpoch} epochs")
     startEpoch = len(logs["epoch"])
     bestAcc = 0
     bestStateDict = None
     startTime = time.time()
+    epoch = 0
+    try:
+        for epoch in range(startEpoch, nEpoch):
 
-    for epoch in range(startEpoch, nEpoch):
+            print(f"Starting epoch {epoch}")
+            trainLoader = trainDataset.getDataLoader(batchSize, samplingMode,
+                                                     True, numWorkers=0)
 
-        print(f"Starting epoch {epoch}")
-        trainLoader = trainDataset.getDataLoader(batchSize, samplingMode,
-                                                 True, numWorkers=0)
+            valLoader = valDataset.getDataLoader(batchSize, 'sequential', False,
+                                                 numWorkers=0)
 
-        valLoader = valDataset.getDataLoader(batchSize, 'sequential', False,
-                                             numWorkers=0)
+            print("Training dataset %d batches, Validation dataset %d batches, batch size %d" %
+                  (len(trainLoader), len(valLoader), batchSize))
 
-        print("Training dataset %d batches, Validation dataset %d batches, batch size %d" %
-              (len(trainLoader), len(valLoader), batchSize))
+            locLogsTrain = trainStep(trainLoader, cpcModel, cpcCriterion, optimizer, logs["logging_step"], useGPU)
 
-        locLogsTrain = trainStep(trainLoader, cpcModel, cpcCriterion, optimizer, logs["logging_step"], useGPU)
+            locLogsVal = valStep(valLoader, cpcModel, cpcCriterion, useGPU)
 
-        locLogsVal = valStep(valLoader, cpcModel, cpcCriterion, useGPU)
+            print(f'Ran {epoch + 1} epochs '
+                  f'in {time.time() - startTime:.2f} seconds')
 
-        print(f'Ran {epoch + 1} epochs '
-              f'in {time.time() - startTime:.2f} seconds')
+            if useGPU:
+                torch.cuda.empty_cache()
 
-        if useGPU:
-            torch.cuda.empty_cache()
+            currentAccuracy = float(locLogsVal["locAcc_val"].mean())
+            if currentAccuracy > bestAcc:
+                bestStateDict = cpcModel.state_dict()
 
-        currentAccuracy = float(locLogsVal["locAcc_val"].mean())
-        if currentAccuracy > bestAcc:
-            bestStateDict = cpcModel.state_dict()
+            for key, value in dict(locLogsTrain, **locLogsVal).items():
+                if key not in logs:
+                    logs[key] = [None for _ in range(epoch)]
+                if isinstance(value, np.ndarray):
+                    value = value.tolist()
+                logs[key].append(value)
 
-        for key, value in dict(locLogsTrain, **locLogsVal).items():
-            if key not in logs:
-                logs[key] = [None for _ in range(epoch)]
-            if isinstance(value, np.ndarray):
-                value = value.tolist()
-            logs[key].append(value)
+            logs["epoch"].append(epoch)
 
-        logs["epoch"].append(epoch)
+            if pathCheckpoint is not None and (epoch % logs["saveStep"] == 0 or epoch == nEpoch - 1):
+                modelStateDict = cpcModel.state_dict()
+                criterionStateDict = cpcCriterion.state_dict()
 
-        if pathCheckpoint is not None and (epoch % logs["saveStep"] == 0 or epoch == nEpoch - 1):
+                save_checkpoint(modelStateDict, criterionStateDict, optimizer.state_dict(), bestStateDict,
+                                f"{pathCheckpoint}_{epoch}.pt")
+                save_logs(logs, pathCheckpoint + "_logs.json")
+    except KeyboardInterrupt:
+        if pathCheckpoint is not None:
             modelStateDict = cpcModel.state_dict()
             criterionStateDict = cpcCriterion.state_dict()
 
             save_checkpoint(modelStateDict, criterionStateDict, optimizer.state_dict(), bestStateDict,
-                            f"{pathCheckpoint}_{epoch}.pt")
+                            f"{pathCheckpoint}_{epoch}_interrupted.pt")
             save_logs(logs, pathCheckpoint + "_logs.json")
+        return
