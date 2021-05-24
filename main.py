@@ -61,8 +61,7 @@ if __name__ == '__main__':
         expDescription += f'{labelsBy}_'
 
     pathCheckpoint = f'logs/{expDescription}{datetime.now().strftime("%d-%m_%H-%M-%S")}'
-    if not os.path.isdir(pathCheckpoint):
-        os.mkdir(pathCheckpoint)
+    os.makedirs(pathCheckpoint, exist_ok=True)
     pathCheckpoint = os.path.join(pathCheckpoint, "checkpoint")
 
     logs = {"epoch": [], "iter": [], "saveStep": 1, "logging_step": 1000}
