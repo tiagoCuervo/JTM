@@ -199,7 +199,7 @@ def trainingLoop(trainDataset,
             print("Training dataset %d batches, Validation dataset %d batches, batch size %d" %
                   (len(trainLoader), len(valLoader), batchSize))
 
-            locLogsTrain = trainStep(trainLoader, cpcModel, cpcCriterion, optimizer, scheduler, logs["logging_step"],
+            locLogsTrain = trainStep(trainLoader, cpcModel, cpcCriterion, optimizer, scheduler, logs["loggingStep"],
                                      useGPU, log2Board, totalSteps, experiment)
 
             totalSteps += locLogsTrain['iter']

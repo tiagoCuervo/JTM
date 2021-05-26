@@ -1,3 +1,4 @@
+import comet_ml
 import torch
 from dataloader import AudioBatchData
 from model import CPCEncoder, CPCModel, CPCUnsupersivedCriterion, loadModel, getAR
@@ -15,7 +16,7 @@ import json
 def getCriterion(config):
     if not config.supervised:
         cpcCriterion = CPCUnsupersivedCriterion(nPredicts=config.nPredicts,
-                                                dimOutputAR=config.hiddenGAr,
+                                                dimOutputAR=config.hiddenGar,
                                                 dimOutputEncoder=config.hiddenEncoder,
                                                 negativeSamplingExt=config.negativeSamplingExt,
                                                 mode=config.cpcMode,
@@ -43,17 +44,6 @@ def parseArgs(argv):
     parser = setDefaultConfig(parser)
 
     groupDb = parser.add_argument_group('Dataset')
-    # groupDb.add_argument('--audioPath', type=str, default=None,
-    #                      help='Path to the directory containing the '
-    #                           'raw audio data.')
-    # groupDb.add_argument('--metadataPathTrain', type=str, default=None,
-    #                      help='Path to the directory containing the '
-    #                           'meta data for the train set.')
-    # groupDb.add_argument('--metadataPathVal', type=str, default=None,
-    #                      help='Path to the directory containing the '
-    #                           'meta data for the validation set.')
-    # groupDb.add_argument('--fileExtension', type=str, default=".wav",
-    #                      help="Extension of the audio files in the dataset.")
     groupDb.add_argument('--ignoreCache', action='store_true',
                          help='Activate if the dataset has been modified '
                               'since the last training session.')
@@ -71,16 +61,9 @@ def parseArgs(argv):
                                   help='Disable the CPC loss and activate '
                                   'the supervised mode. By default, the supervised '
                                   'training method is the ensemble classification.')
-    # group_supervised.add_argument('--pathPhone', type=str, default=None,
-    #                               help='(Supervised mode only) Path to a .txt '
-    #                               'containing the phone labels of the dataset. If given '
-    #                               'and --supervised, will train the model using a '
-    #                               'phone classification task.')
-    # group_supervised.add_argument('--CTC', action='store_true')
-
     groupSave = parser.add_argument_group('Save')
-    # groupSave.add_argument('--pathCheckpoint', type=str, default=None,
-    #                        help="Path of the output directory.")
+    groupSave.add_argument('--pathCheckpoint', type=str, default=None,
+                           help="Path of the output directory.")
     groupSave.add_argument('--loggingStep', type=int, default=1000)
     groupSave.add_argument('--saveStep', type=int, default=1,
                            help="Frequency (in epochs) at which a checkpoint "
@@ -240,9 +223,11 @@ def main(config):
 
     experiment = None
     if config.log2Board:
-        import comet_ml
+        cometKey = input("Please enter your Comet.ml API key: ")
         comet_ml.init(project_name="jtm", workspace="tiagocuervo")
-        experiment = comet_ml.Experiment()
+        experiment = comet_ml.Experiment(cometKey)
+        experiment.log_parameters(vars(config))
+        assert False
 
     run(trainDataset, valDataset, batchSize, config.samplingType, cpcModel, cpcCriterion, config.nEpoch, optimizer,
         scheduler, pathCheckpoint, logs, useGPU, log2Board=config.log2Board, experiment=experiment)
