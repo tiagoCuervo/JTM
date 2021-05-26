@@ -1,0 +1,321 @@
+id,sequencePath,length,composer,ensemble,composition,movement,id_cat,composer_cat,ensemble_cat,composition_cat,movement_cat
+2302,train_data/2302.wav,1733277,Bach,Solo Piano,"WTK I, No. 5: Prelude and Fugue in D major",2. Fugue,165,0,12,113,76
+2659,train_data/2659.wav,1733277,Bach,Solo Violin,Violin Partita No 1 in B minor,6. Double,327,0,13,83,193
+2222,train_data/2222.wav,3232497,Bach,Solo Cello,Cello Suite 3,6. Gigue,131,0,10,4,194
+1789,train_data/1789.wav,7381245,Mozart,String Quartet,String Quartet No 19 in C major,2. Andante cantabile,31,7,14,70,62
+1788,train_data/1788.wav,8211069,Mozart,String Quartet,String Quartet No 19 in C major,1. Adagio - Allegro,30,7,14,70,1
+2476,train_data/2476.wav,7590975,Beethoven,Solo Piano,Piano Sonata No 3 in C major,2. Adagio,245,1,12,37,38
+2220,train_data/2220.wav,4832027,Bach,Solo Cello,Cello Suite 3,4. Sarabande,129,0,10,4,187
+2528,train_data/2528.wav,7419612,Beethoven,Solo Piano,Piano Sonata No 5 in C minor,2. Adagio molto,275,1,12,40,49
+2542,train_data/2542.wav,10415961,Beethoven,Solo Piano,Piano Sonata No 28 in A major,3. Langsam und sehnsuchtsvoll,284,1,12,35,125
+2342,train_data/2342.wav,3076598,Beethoven,Accompanied Violin,Violin Sonata No 8 in G major,3. Allegro vivace,185,1,2,92,115
+1775,train_data/1775.wav,9251527,Schubert,Solo Piano,Piano Sonata in D major,1. Allegro vivace,27,9,12,48,19
+2512,train_data/2512.wav,6776373,Beethoven,Solo Piano,Piano Sonata No 2 in A major,4. Rondo: Grazioso,268,1,12,25,184
+2348,train_data/2348.wav,7899429,Beethoven,Solo Piano,Piano Sonata No 14 in C-sharp minor,3. Presto agitato,189,1,12,19,139
+1873,train_data/1873.wav,5866058,Mozart,Piano Trio,Piano Trio No 3 in B-flat major,3. Allegretto,51,7,9,50,110
+2322,train_data/2322.wav,10335713,Beethoven,Solo Piano,Piano Sonata No 23 in F minor,1. Allegro assai,178,1,12,31,8
+2330,train_data/2330.wav,8514665,Beethoven,Accompanied Violin,Violin Sonata No 1 in D major,1. Allegro con brio,180,1,2,85,9
+1772,train_data/1772.wav,6679406,Schubert,Solo Piano,Piano Sonata in D-flat major,2. Andante molto,25,9,12,49,65
+2325,train_data/2325.wav,8821447,Beethoven,Solo Piano,Piano Sonata No 23 in F minor,1. Allegro assai,179,1,12,31,8
+1777,train_data/1777.wav,10071981,Schubert,Solo Piano,Piano Sonata in D major,3. Scherzo. Allegro vivace,29,9,12,48,150
+1776,train_data/1776.wav,11617594,Schubert,Solo Piano,Piano Sonata in D major,2. Con moto,28,9,12,48,73
+1771,train_data/1771.wav,10357865,Schubert,Solo Piano,Piano Sonata in D-flat major,1. Allegro moderato,24,9,12,49,14
+2154,train_data/2154.wav,14307579,Brahms,String Sextet,String Sextet No 1 in B-flat major,1. Allegro ma non troppo,90,2,15,80,12
+2156,train_data/2156.wav,3072418,Brahms,String Sextet,String Sextet No 1 in B-flat major,3. Scherzo. Allegro molto,92,2,15,80,149
+2480,train_data/2480.wav,6329992,Beethoven,String Quartet,String Quartet No 5 in A major,1. Allegro,248,1,14,73,6
+2486,train_data/2486.wav,7170508,Beethoven,Solo Piano,Piano Sonata No 4 in E-flat major,"2. Largo, con gran espressione",252,1,12,39,85
+2529,train_data/2529.wav,4408216,Beethoven,Solo Piano,Piano Sonata No 5 in C minor,3. Finale: Prestissimo,276,1,12,40,122
+2487,train_data/2487.wav,5435142,Beethoven,Solo Piano,Piano Sonata No 4 in E-flat major,3. Allegro,253,1,12,39,112
+2157,train_data/2157.wav,10576458,Brahms,String Sextet,String Sextet No 1 in B-flat major,4. Rondo: Poco Allegretto e grazioso,93,2,15,80,185
+2155,train_data/2155.wav,9697907,Brahms,String Sextet,String Sextet No 1 in B-flat major,"2. Andante, ma moderato",91,2,15,80,69
+2481,train_data/2481.wav,5671289,Beethoven,String Quartet,String Quartet No 5 in A major,2. Menuetto,249,1,14,73,87
+2383,train_data/2383.wav,6141075,Beethoven,String Quartet,String Quartet No 13 in B-flat major,"3. Andante con moto, ma non troppo. Poco scherzoso",207,1,14,64,120
+2462,train_data/2462.wav,7830884,Beethoven,Accompanied Violin,Violin Sonata No 4 in A minor,"2. Andante scherzoso, piu allegretto",239,1,2,90,67
+2509,train_data/2509.wav,7749800,Beethoven,Solo Piano,Piano Sonata No 2 in A major,1. Allegro vivace,266,1,12,25,19
+2247,train_data/2247.wav,1299854,Bach,Solo Piano,"WTK I, No. 9: Prelude and Fugue in E major",2. Fugue,149,0,12,117,76
+2466,train_data/2466.wav,4891795,Beethoven,Accompanied Violin,Violin Sonata No 4 in A minor,3. Allegro molto,241,1,2,90,113
+2158,train_data/2158.wav,7714273,Brahms,Horn Piano Trio,Horn Trio in E-flat major,1. Andante,94,2,5,8,22
+2150,train_data/2150.wav,9585476,Brahms,Piano Quartet,Piano Quartet No 1 in G minor,3. Andante con moto,88,2,7,11,119
+2243,train_data/2243.wav,3103347,Bach,Solo Violin,Violin Sonata No 1 in G minor,3. Siciliana,147,0,13,86,157
+2159,train_data/2159.wav,7464334,Brahms,Horn Piano Trio,Horn Trio in E-flat major,2. Scherzo (Allegro),95,2,5,8,95
+2151,train_data/2151.wav,8533473,Brahms,Piano Quartet,Piano Quartet No 1 in G minor,4. Rondo alla Zingarese: Presto,89,2,7,11,178
+2483,train_data/2483.wav,5879014,Beethoven,String Quartet,String Quartet No 5 in A major,4. Allegro,251,1,14,73,161
+2242,train_data/2242.wav,5003808,Bach,Solo Violin,Violin Sonata No 1 in G minor,2. Fuga,146,0,13,86,75
+2244,train_data/2244.wav,3429774,Bach,Solo Violin,Violin Sonata No 1 in G minor,4. Presto,148,0,13,86,177
+2357,train_data/2357.wav,5722698,Beethoven,Solo Piano,Piano Sonata No 15 in D major,2. Andante,191,1,12,20,61
+2463,train_data/2463.wav,4955743,Beethoven,Accompanied Violin,Violin Sonata No 4 in A minor,3. Allegro molto,240,1,2,90,113
+1790,train_data/1790.wav,5181693,Mozart,String Quartet,String Quartet No 19 in C major,3. Menuetto. Allegro,32,7,14,70,132
+1792,train_data/1792.wav,7564644,Mozart,String Quartet,String Quartet No 19 in C major,1. Adagio - Allegro,34,7,14,70,1
+1793,train_data/1793.wav,8078316,Mozart,String Quartet,String Quartet No 19 in C major,2. Andante cantabile,35,7,14,70,62
+1791,train_data/1791.wav,5624445,Mozart,String Quartet,String Quartet No 19 in C major,4. Allegro molto,33,7,14,70,164
+2502,train_data/2502.wav,4283664,Beethoven,Accompanied Violin,Violin Sonata No 3 in E-flat major,3. Rondo: Allegro molto,261,1,2,89,147
+2295,train_data/2295.wav,4151171,Bach,Solo Cello,Cello Suite 4,3. Courante,160,0,10,5,121
+2506,train_data/2506.wav,3007217,Beethoven,Wind Octet,Octet in E-flat major for Winds,3. Menuetto,264,1,18,9,128
+2505,train_data/2505.wav,7829630,Beethoven,Wind Octet,Octet in E-flat major for Winds,2. Andante,263,1,18,9,61
+2379,train_data/2379.wav,5348206,Beethoven,String Quartet,String Quartet No 8 in E minor,"4. Finale, Presto, alla breve",204,1,14,76,168
+2294,train_data/2294.wav,3655054,Bach,Solo Cello,Cello Suite 4,2. Allemande,159,0,10,5,60
+2555,train_data/2555.wav,3579403,Beethoven,Solo Piano,Piano Sonata No 30 in E major,1. Vivace ma non troppo / Adagio espresivo,286,1,12,38,36
+1829,train_data/1829.wav,6741264,Mozart,Piano Trio,Piano Trio No 4 in E major,3. Allegro,47,7,9,51,112
+2550,train_data/2550.wav,2884755,Beethoven,Solo Piano,Piano Sonata No 24 in F-sharp major,2. Allegro vivace,285,1,12,32,59
+2491,train_data/2491.wav,5297215,Beethoven,Solo Piano,Piano Sonata No 4 in E-flat major,3. Allegro,256,1,12,39,112
+2314,train_data/2314.wav,9089777,Beethoven,String Quartet,String Quartet No 15 in A minor,2. Allegro ma non tanto,173,1,14,66,56
+2319,train_data/2319.wav,9934472,Beethoven,Clarinet-Cello-Piano Trio,Trio in E-flat major,2. Scherzo: Allegro ma non troppo,176,1,4,82,99
+2504,train_data/2504.wav,7366949,Beethoven,Wind Octet,Octet in E-flat major for Winds,1. Allegro,262,1,18,9,6
+2318,train_data/2318.wav,10270512,Beethoven,Clarinet-Cello-Piano Trio,Trio in E-flat major,1. Allegro moderato,175,1,4,82,14
+1828,train_data/1828.wav,4243540,Mozart,Piano Trio,Piano Trio No 4 in E major,2. Andante grazioso,46,7,9,51,64
+1824,train_data/1824.wav,4047741,Mozart,String Quartet,String Quartet No 15 in D minor,3. Menuetto and Trio. Allegretto,45,7,14,67,130
+2140,train_data/2140.wav,6104712,Brahms,String Quartet,String Quartet in C minor,4. Allegro,84,2,14,77,161
+2392,train_data/2392.wav,7001235,Beethoven,Solo Piano,Piano Sonata No 17 in D minor,2. Adagio,213,1,12,22,38
+2411,train_data/2411.wav,2065137,Beethoven,Solo Piano,Piano Sonata No 13 in E-flat major,2. Allegro molto e vivace,222,1,12,18,58
+2393,train_data/2393.wav,6130626,Beethoven,Solo Piano,Piano Sonata No 17 in D minor,3. Allegretto,214,1,12,22,110
+2390,train_data/2390.wav,6273568,Beethoven,Solo Piano,Piano Sonata No 17 in D minor,3. Allegretto,211,1,12,22,110
+2310,train_data/2310.wav,883984,Bach,Solo Piano,"WTK I, No. 15: Prelude and Fugue in G major",1. Prelude,171,0,12,100,34
+2527,train_data/2527.wav,6177855,Beethoven,Solo Piano,Piano Sonata No 5 in C minor,1. Allegro molto e con brio,274,1,12,40,16
+2315,train_data/2315.wav,17104562,Beethoven,String Quartet,String Quartet No 15 in A minor,3. Molto Adagio; Andante,174,1,14,66,136
+1822,train_data/1822.wav,7369341,Mozart,String Quartet,String Quartet No 15 in D minor,1. Allegro moderato,44,7,14,67,14
+2397,train_data/2397.wav,9968745,Beethoven,Accompanied Violin,Violin Sonata No 9 in A major,1. Adagio sostenuto - Presto,215,1,2,93,3
+2313,train_data/2313.wav,9501885,Beethoven,String Quartet,String Quartet No 15 in A minor,1. Allegro,172,1,14,66,6
+2477,train_data/2477.wav,3533845,Beethoven,Solo Piano,Piano Sonata No 3 in C major,3. Scherzo: Allegro,246,1,12,37,152
+2507,train_data/2507.wav,3484944,Beethoven,Wind Octet,Octet in E-flat major for Winds,4. Presto,265,1,18,9,177
+2492,train_data/2492.wav,7691285,Beethoven,Solo Piano,Piano Sonata No 4 in E-flat major,4. Rondo: Poco allegretto e grazioso,257,1,12,39,186
+1835,train_data/1835.wav,3790054,Mozart,String Quartet,String Quartet No 23 in F major,3. Menuetto. Allegretto,48,7,14,72,131
+2537,train_data/2537.wav,4590864,Beethoven,Solo Piano,Piano Sonata No 20 in G major,1. Allegro ma non troppo,281,1,12,28,12
+2148,train_data/2148.wav,13162371,Brahms,Piano Quartet,Piano Quartet No 1 in G minor,1. Allegro,86,2,7,11,6
+2288,train_data/2288.wav,3067821,Bach,Solo Violin,Violin Partita No 1 in B minor,2. Corrente,155,0,13,83,74
+2451,train_data/2451.wav,6749565,Beethoven,String Quartet,String Quartet No 6 in B-flat major,2. Adagio ma non troppo,238,1,14,74,48
+1872,train_data/1872.wav,8151458,Mozart,Piano Trio,Piano Trio No 3 in B-flat major,2. Larghetto,50,7,9,50,79
+2149,train_data/2149.wav,7621068,Brahms,Piano Quartet,Piano Quartet No 1 in G minor,2. Intermezzo: Allegro ma non troppo,87,2,7,11,78
+2607,train_data/2607.wav,10783765,Beethoven,Solo Piano,Piano Sonata No 16 in G major,2. Adagio grazioso,312,1,12,21,47
+2147,train_data/2147.wav,8028996,Brahms,String Sextet,String Sextet No 2 in G major,4. Poco allegro,85,2,15,81,176
+2443,train_data/2443.wav,16562051,Beethoven,Solo Piano,Piano Sonata No 29 in B-flat major,3. Adagio sostenuto,236,1,12,36,109
+1739,train_data/1739.wav,7847184,Schubert,Piano Trio,Piano Trio in B-flat major,4. Rondo. Allegro vivace,7,9,9,54,181
+2540,train_data/2540.wav,4216373,Beethoven,Solo Piano,Piano Sonata No 28 in A major,1. Etwas lebhaft und mit der innigsten Empfindung,283,1,12,35,26
+2364,train_data/2364.wav,4751778,Beethoven,Solo Piano,Piano Sonata No 15 in D major,4. Rondo: Allegro ma non troppo,194,1,12,20,183
+2497,train_data/2497.wav,4707057,Beethoven,String Quartet,String Quartet No 11 in F minor,4. Larghetto espressivo; Allegretto agitato; Allegro,259,1,14,61,173
+2308,train_data/2308.wav,1949362,Bach,Solo Piano,"WTK I, No. 18: Prelude and Fugue in G-sharp minor",1. Prelude,170,0,12,103,34
+2557,train_data/2557.wav,12196049,Beethoven,Solo Piano,Piano Sonata No 30 in E major,"3. Gesangvoll, mit innigster Empfindung",288,1,12,38,123
+1919,train_data/1919.wav,6948861,Dvorak,String Quartet,String Quartet No 10 in E-flat major,4. Finale,56,4,14,60,167
+1773,train_data/1773.wav,4918126,Schubert,Solo Piano,Piano Sonata in D-flat major,3. Menuetto. Allegretto,26,9,12,49,131
+2300,train_data/2300.wav,3810952,Bach,Solo Piano,"WTK I, No. 8: Prelude and Fugue in E-flat minor",1. Prelude,164,0,12,116,34
+2384,train_data/2384.wav,3405950,Beethoven,String Quartet,String Quartet No 13 in B-flat major,4. Alla danza tedesca. Allegro assai,208,1,14,64,159
+2079,train_data/2079.wav,4459207,Cambini,Wind Quintet,Wind Quintet No 2 in D Minor,2. Larghetto sostenuto ma con moto,66,3,19,119,82
+1923,train_data/1923.wav,6290704,Dvorak,String Quartet,String Quartet No 10 in E-flat major,4. Finale,58,4,14,60,167
+2410,train_data/2410.wav,5015511,Beethoven,Solo Piano,Piano Sonata No 13 in E-flat major,1. Andante - Allegro - Andante,221,1,12,18,23
+2078,train_data/2078.wav,5695948,Cambini,Wind Quintet,Wind Quintet No 2 in D Minor,1. Allegro espressivo,65,3,19,119,10
+2490,train_data/2490.wav,8306939,Beethoven,Solo Piano,Piano Sonata No 4 in E-flat major,"2. Largo, con gran espressione",255,1,12,39,85
+2304,train_data/2304.wav,3141800,Bach,Solo Piano,"WTK I, No. 14: Prelude and Fugue in F-sharp minor",2. Fugue,167,0,12,99,76
+2305,train_data/2305.wav,1042391,Bach,Solo Piano,"WTK I, No. 14: Prelude and Fugue in F-sharp minor",1. Prelude,168,0,12,99,34
+2381,train_data/2381.wav,8968987,Beethoven,String Quartet,String Quartet No 13 in B-flat major,"1. Adagio, ma non troppo - Allegro",205,1,14,64,4
+2538,train_data/2538.wav,3394665,Beethoven,Solo Piano,Piano Sonata No 20 in G major,2. Tempo di Menuetto,282,1,12,28,101
+2307,train_data/2307.wav,2195122,Bach,Solo Piano,"WTK I, No. 18: Prelude and Fugue in G-sharp minor",2. Fugue,169,0,12,103,76
+2389,train_data/2389.wav,7194750,Beethoven,Solo Piano,Piano Sonata No 17 in D minor,2. Adagio,210,1,12,22,38
+2415,train_data/2415.wav,3647530,Beethoven,Pairs Clarinet-Horn-Bassoon,Sextet in E-flat major for Winds,2. Adagio,223,1,6,58,38
+2494,train_data/2494.wav,4753032,Beethoven,String Quartet,String Quartet No 11 in F minor,1. Allegro con brio,258,1,14,61,9
+2178,train_data/2178.wav,5683827,Ravel,String Quartet,String Quartet in F,2. Assez vif - tres rythme,103,8,14,78,72
+2075,train_data/2075.wav,5264196,Cambini,Wind Quintet,Wind Quintet No 1 in B-flat Major,1. Allegro maestoso,62,3,19,118,13
+2289,train_data/2289.wav,3253813,Bach,Solo Violin,Violin Partita No 1 in B minor,3. Sarabande,156,0,13,83,148
+2076,train_data/2076.wav,3960164,Cambini,Wind Quintet,Wind Quintet No 1 in B-flat Major,2. Larghetto cantabile,63,3,19,118,80
+1916,train_data/1916.wav,10800381,Dvorak,String Quartet,String Quartet No 10 in E-flat major,1. Allegro ma non troppo,54,4,14,60,12
+2179,train_data/2179.wav,8080823,Ravel,String Quartet,String Quartet in F,3. Tres lent,104,8,14,78,158
+2077,train_data/2077.wav,4001960,Cambini,Wind Quintet,Wind Quintet No 1 in B-flat Major,3. Rondo Allegretto grazioso,64,3,19,118,143
+2442,train_data/2442.wav,2800745,Beethoven,Solo Piano,Piano Sonata No 29 in B-flat major,2. Scherzo: Assai vivace,235,1,12,36,100
+2177,train_data/2177.wav,7853454,Ravel,String Quartet,String Quartet in F,1. Allegro moderato - tres doux,102,8,14,78,15
+2603,train_data/2603.wav,6691945,Beethoven,Solo Piano,Piano Sonata No 26 in E-flat major,1. Das Lebewohl,311,1,12,33,25
+2608,train_data/2608.wav,6248490,Beethoven,Solo Piano,Piano Sonata No 16 in G major,"3. Rondo, allegretto - presto",313,1,12,21,145
+2282,train_data/2282.wav,5012167,Bach,Violin and Harpsichord,Violin Sonata in B minor,1. Adagio,151,0,17,94,0
+1742,train_data/1742.wav,14792412,Schubert,Viola Quintet,String Quintet in C major,2. Adagio,8,9,16,79,38
+2444,train_data/2444.wav,12330632,Beethoven,Solo Piano,Piano Sonata No 29 in B-flat major,4. Introduzione: Largo...Allegro - Fuga: Allegro risoluto,237,1,12,36,172
+2285,train_data/2285.wav,3615347,Bach,Violin and Harpsichord,Violin Sonata in B minor,4. Allegro,154,0,17,94,161
+2441,train_data/2441.wav,12718498,Beethoven,Solo Piano,Piano Sonata No 29 in B-flat major,1. Allegro,234,1,12,36,6
+2284,train_data/2284.wav,3639171,Bach,Violin and Harpsichord,Violin Sonata in B minor,3. Andante,153,0,17,94,116
+2201,train_data/2201.wav,2148311,Bach,Solo Piano,"WTK I, No. 16: Prelude and Fugue in G minor",1. Prelude,113,0,12,101,34
+2391,train_data/2391.wav,7574257,Beethoven,Solo Piano,Piano Sonata No 17 in D minor,1. Largo - Allegro,212,1,12,22,28
+2320,train_data/2320.wav,3563938,Beethoven,Clarinet-Cello-Piano Trio,Trio in E-flat major,3. Rondo: Allegro,177,1,4,82,146
+1728,train_data/1728.wav,4018260,Schubert,Piano Quintet,Piano Quintet in A major,3. Scherzo: Presto,1,9,8,13,156
+2523,train_data/2523.wav,8937981,Beethoven,Accompanied Cello,Cello Sonata No. 3 in A major,3. Adagio cantabile - Allegro vivace,273,1,0,2,105
+2521,train_data/2521.wav,12031485,Beethoven,Accompanied Cello,Cello Sonata No. 3 in A major,1. Allegro ma non tanto,271,1,0,2,11
+2516,train_data/2516.wav,6206694,Beethoven,Solo Piano,Piano Sonata No 2 in A major,4. Rondo: Grazioso,270,1,12,25,184
+2229,train_data/2229.wav,3913352,Bach,Solo Piano,"WTK I, No. 20: Prelude and Fugue in A minor",2. Fugue,136,0,12,106,76
+1933,train_data/1933.wav,5625981,Dvorak,String Quartet,String Quartet No 12 in F major,4. Finale: vivace ma non troppo,61,4,14,63,170
+1931,train_data/1931.wav,7544061,Dvorak,String Quartet,String Quartet No 12 in F major,2. Lento,59,4,14,63,86
+1932,train_data/1932.wav,4000893,Dvorak,String Quartet,String Quartet No 12 in F major,3. Molto vivace,60,4,14,63,137
+2398,train_data/2398.wav,14573819,Beethoven,Accompanied Violin,Violin Sonata No 9 in A major,2. Andante con variazioni,216,1,2,93,63
+2571,train_data/2571.wav,8640471,Beethoven,Accompanied Violin,Violin Sonata No 7 in C minor,2. Adagio cantibile,296,1,2,91,43
+2573,train_data/2573.wav,5441829,Beethoven,Accompanied Violin,Violin Sonata No 7 in C minor,4. Finale: Allegro; Presto,298,1,2,91,169
+2570,train_data/2570.wav,8112170,Beethoven,Accompanied Violin,Violin Sonata No 7 in C minor,1. Allegro con brio,295,1,2,91,9
+2576,train_data/2576.wav,4475507,Beethoven,Solo Piano,Piano Sonata No 8 in C minor,3. Rondo: Allegro,300,1,12,43,146
+1727,train_data/1727.wav,7152954,Schubert,Piano Quintet,Piano Quintet in A major,2. Andante,0,9,8,13,61
+1729,train_data/1729.wav,7111994,Schubert,Piano Quintet,Piano Quintet in A major,4. Andantino - Allegretto,2,9,8,13,166
+2404,train_data/2404.wav,6385999,Beethoven,Solo Piano,Piano Sonata No 20 in A-flat major,1. Moderato cantabile molto espressivo,218,1,12,26,33
+2575,train_data/2575.wav,4862120,Beethoven,Solo Piano,Piano Sonata No 8 in C minor,2. Adagio cantabile,299,1,12,43,41
+2572,train_data/2572.wav,3216614,Beethoven,Accompanied Violin,Violin Sonata No 7 in C minor,3. Scherzo: Allegro,297,1,2,91,152
+2677,train_data/2677.wav,7124115,Beethoven,Solo Piano,Piano Sonata No 9 in E major,1. Allegro,328,1,12,44,6
+2374,train_data/2374.wav,3464464,Beethoven,Solo Piano,Piano Sonata No 19 in G minor,2. Rondo: Allegro,201,1,12,24,94
+2169,train_data/2169.wav,8308193,Faure,Piano Quartet,Piano Quartet No 2 in G minor,4. Allegro molto,101,5,7,12,164
+2168,train_data/2168.wav,9804069,Faure,Piano Quartet,Piano Quartet No 2 in G minor,3. Adagio non troppo,100,5,7,12,108
+1730,train_data/1730.wav,5896569,Schubert,Piano Quintet,Piano Quintet in A major,5. Allegro giusto,3,9,8,13,190
+2678,train_data/2678.wav,7557956,Beethoven,Solo Piano,Piano Sonata No 10 in G major,1. Allegro,329,1,12,15,6
+2161,train_data/2161.wav,6355070,Brahms,Horn Piano Trio,Horn Trio in E-flat major,4. Allegro con brio,97,2,5,8,163
+2166,train_data/2166.wav,10228716,Faure,Piano Quartet,Piano Quartet No 2 in G minor,1. Allegro molto moderato,98,5,7,12,17
+2373,train_data/2373.wav,5097849,Beethoven,Solo Piano,Piano Sonata No 19 in G minor,1. Andante,200,1,12,24,22
+2160,train_data/2160.wav,7151700,Brahms,Horn Piano Trio,Horn Trio in E-flat major,3. Adagio mesto,96,2,5,8,107
+2167,train_data/2167.wav,3095406,Faure,Piano Quartet,Piano Quartet No 2 in G minor,2. Allegro molto,99,5,7,12,57
+2372,train_data/2372.wav,3657143,Beethoven,Solo Piano,Piano Sonata No 9 in E major,3. Rondo - Allegro comodo,199,1,12,44,142
+2590,train_data/2590.wav,6251834,Beethoven,Solo Piano,Piano Sonata No 12 in A-flat major,3. Maestoso andante,305,1,12,17,127
+2611,train_data/2611.wav,9012036,Beethoven,Solo Piano,Piano Sonata No 7 in D major,2. Largo e mesto,314,1,12,42,84
+2591,train_data/2591.wav,2871798,Beethoven,Solo Piano,Piano Sonata No 12 in A-flat major,4. Allegro,306,1,12,17,161
+2593,train_data/2593.wav,8206211,Beethoven,Solo Piano,Piano Sonata No 18 in E-flat major,1. Allegro,307,1,12,23,6
+2595,train_data/2595.wav,4923142,Beethoven,Solo Piano,Piano Sonata No 18 in E-flat major,3. Menuetto. Moderato e grazioso,309,1,12,23,133
+2614,train_data/2614.wav,10162678,Beethoven,Solo Piano,Piano Sonata No 7 in D major,2. Largo e mesto,315,1,12,42,84
+2293,train_data/2293.wav,4962430,Bach,Solo Cello,Cello Suite 4,1. Prelude,158,0,10,5,34
+2594,train_data/2594.wav,5109134,Beethoven,Solo Piano,Piano Sonata No 18 in E-flat major,2. Scherzo: Allegretto vivace,308,1,12,23,98
+2596,train_data/2596.wav,5212787,Beethoven,Solo Piano,Piano Sonata No 18 in E-flat major,4. Presto,310,1,12,23,177
+2292,train_data/2292.wav,1461186,Bach,Solo Piano,"WTK I, No. 19: Prelude and Fugue in A major",1. Prelude,157,0,12,104,34
+2473,train_data/2473.wav,5364507,Beethoven,Solo Piano,Piano Sonata No 3 in C major,4. Allegro assai,244,1,12,37,162
+2619,train_data/2619.wav,3815968,Beethoven,Solo Piano,Piano Sonata No 6 in F major,2. Allegretto,317,1,12,41,51
+2297,train_data/2297.wav,5348206,Bach,Solo Cello,Cello Suite 4,5. Bouree,162,0,10,5,191
+2472,train_data/2472.wav,3446492,Beethoven,Solo Piano,Piano Sonata No 3 in C major,3. Scherzo: Allegro,243,1,12,37,152
+1813,train_data/1813.wav,9471792,Mozart,Clarinet Quintet,Clarinet Quintet in A major,4. Allegretto con variazioni,40,7,3,6,160
+2200,train_data/2200.wav,1816451,Bach,Solo Piano,"WTK I, No. 16: Prelude and Fugue in G minor",2. Fugue,112,0,12,101,76
+1734,train_data/1734.wav,5209862,Schubert,Solo Piano,Piano Sonata in A major,3. Scherzo. Allegro vivace,5,9,12,45,150
+2568,train_data/2568.wav,7649489,Beethoven,Solo Piano,Piano Sonata No 27 in E minor,2. Nicht zu geschwind und sehr singbar vorgetragen,294,1,12,34,90
+2196,train_data/2196.wav,1207485,Bach,Solo Piano,"WTK I, No. 3: Prelude and Fugue in C-sharp major",1. Prelude,110,0,12,111,34
+2203,train_data/2203.wav,2498978,Bach,Solo Flute,Partita in A minor,2. Corrente,115,0,11,10,74
+2194,train_data/2194.wav,1601620,Bach,Solo Piano,"WTK I, No. 13: Prelude and Fugue in F-sharp major",1. Prelude,108,0,12,98,34
+2202,train_data/2202.wav,2899383,Bach,Solo Flute,Partita in A minor,1. Allemande,114,0,11,10,21
+2296,train_data/2296.wav,4670694,Bach,Solo Cello,Cello Suite 4,4. Sarabande,161,0,10,5,187
+2198,train_data/2198.wav,3166877,Bach,Solo Piano,"WTK I, No. 22: Prelude and Fugue in B-flat minor",2. Fugue,111,0,12,108,76
+1876,train_data/1876.wav,5703472,Mozart,Piano Trio,Piano Trio No2 in G major,2. Andante,52,7,9,53,61
+2195,train_data/2195.wav,2481842,Bach,Solo Piano,"WTK I, No. 3: Prelude and Fugue in C-sharp major",2. Fugue,109,0,12,111,76
+1735,train_data/1735.wav,11438707,Schubert,Solo Piano,Piano Sonata in A major,4. Rondo. Allegretto,6,9,12,45,179
+2564,train_data/2564.wav,8862825,Beethoven,Solo Piano,Piano Sonata No 11 in B-flat major,2. Adagio con molto espressione,291,1,12,16,45
+2567,train_data/2567.wav,6194574,Beethoven,Solo Piano,Piano Sonata No 27 in E minor,1. Mit Lebhaftigkeit und durchaus mit Empfindung und Ausdruck,293,1,12,34,31
+2562,train_data/2562.wav,5289692,Beethoven,String Quartet,String Quartet No 2 in G major,"4. Allegro molto, quasi presto",290,1,14,71,165
+2208,train_data/2208.wav,1932644,Bach,Solo Piano,"WTK I, No. 10: Prelude and Fugue in E minor",1. Prelude,118,0,12,95,34
+2207,train_data/2207.wav,1434018,Bach,Solo Piano,"WTK I, No. 10: Prelude and Fugue in E minor",2. Fugue,117,0,12,95,76
+2471,train_data/2471.wav,7256608,Beethoven,Solo Piano,Piano Sonata No 3 in C major,2. Adagio,242,1,12,37,38
+2204,train_data/2204.wav,2118636,Bach,Solo Flute,Partita in A minor,3. Sarabande,116,0,11,10,148
+1733,train_data/1733.wav,8736183,Schubert,Solo Piano,Piano Sonata in A major,2. Andantino,4,9,12,45,70
+2560,train_data/2560.wav,6071276,Beethoven,String Quartet,String Quartet No 2 in G major,2. Adagio cantabile - Allegro - Tempo I,289,1,14,71,42
+2368,train_data/2368.wav,6954423,Beethoven,String Quartet,String Quartet No 12 in E-flat major,4. Allegro,197,1,14,62,161
+2117,train_data/2117.wav,4257333,Brahms,Accompanied Clarinet,Clarinet Sonata No 1 in F minor,2. Andante un poco Adagio,78,2,1,7,68
+2118,train_data/2118.wav,3713986,Brahms,Accompanied Clarinet,Clarinet Sonata No 1 in F minor,3. Allegretto grazioso,79,2,1,7,111
+2113,train_data/2113.wav,5645793,Brahms,Accompanied Cello,Cello Sonata No 1 in E minor,2. Allegretto quasi Menuetto,75,2,0,1,53
+2116,train_data/2116.wav,6574498,Brahms,Accompanied Clarinet,Clarinet Sonata No 1 in F minor,1. Allegro appassionato,77,2,1,7,7
+2566,train_data/2566.wav,6484219,Beethoven,Solo Piano,Piano Sonata No 11 in B-flat major,4. Rondo: Allegretto,292,1,12,16,182
+2248,train_data/2248.wav,1674345,Bach,Solo Piano,"WTK I, No. 9: Prelude and Fugue in E major",1. Prelude,150,0,12,117,34
+2405,train_data/2405.wav,2207661,Beethoven,Solo Piano,Piano Sonata No 20 in A-flat major,2. Allegro molto,219,1,12,26,57
+2112,train_data/2112.wav,14360242,Brahms,Accompanied Cello,Cello Sonata No 1 in E minor,1. Allegro non troppo,74,2,0,1,18
+2114,train_data/2114.wav,6449111,Brahms,Accompanied Cello,Cello Sonata No 1 in E minor,3. Allegro,76,2,0,1,112
+2119,train_data/2119.wav,4714162,Brahms,Accompanied Clarinet,Clarinet Sonata No 1 in F minor,4. Vivace,80,2,1,7,189
+2417,train_data/2417.wav,3642097,Beethoven,Pairs Clarinet-Horn-Bassoon,Sextet in E-flat major for Winds,4. Rondo. Allegro,225,1,6,58,180
+2581,train_data/2581.wav,5531690,Beethoven,Solo Piano,Piano Sonata No 22 in F major,1. tempo d un menuetto,301,1,12,30,37
+2622,train_data/2622.wav,8115932,Beethoven,String Quartet,String Quartet No 7 in F major,2. Allegretto vivace e sempre scherzando,320,1,14,75,54
+2620,train_data/2620.wav,2557911,Beethoven,Solo Piano,Piano Sonata No 6 in F major,3. Presto,318,1,12,41,138
+2621,train_data/2621.wav,10378763,Beethoven,String Quartet,String Quartet No 7 in F major,1. Allegro,319,1,14,75,6
+2586,train_data/2586.wav,6870414,Beethoven,Accompanied Cello,Cello Sonata No. 4 in C major,2. Adagio - Tempo d andante - Allegro vivace,303,1,0,3,40
+2627,train_data/2627.wav,5168484,Beethoven,Accompanied Violin,Violin Sonata No 10 in G major,2. Adagio espressivo,322,1,2,87,46
+2626,train_data/2626.wav,9503138,Beethoven,Accompanied Violin,Violin Sonata No 10 in G major,1. Allegro moderato,321,1,2,87,14
+1918,train_data/1918.wav,5874429,Dvorak,String Quartet,String Quartet No 10 in E-flat major,3. Romanza,55,4,14,60,141
+2180,train_data/2180.wav,4699116,Ravel,String Quartet,String Quartet in F,4. Vif et agite,105,8,14,78,188
+2420,train_data/2420.wav,3787129,Beethoven,Accompanied Violin,Violin Sonata No 2 in A major,3. Allegro piacevole,226,1,2,88,114
+2423,train_data/2423.wav,4763481,Beethoven,Solo Piano,Piano Sonata No 1 in F minor,2. Adagio,228,1,12,14,38
+2588,train_data/2588.wav,8365872,Beethoven,Solo Piano,Piano Sonata No 12 in A-flat major,1. Andante con variazioni,304,1,12,17,24
+2186,train_data/2186.wav,3430192,Bach,Solo Violin,Violin Partita No 3 in E major,1. Preludio,106,0,13,84,35
+2422,train_data/2422.wav,3864869,Beethoven,Solo Piano,Piano Sonata No 1 in F minor,1. Allegro,227,1,12,14,6
+2424,train_data/2424.wav,3244200,Beethoven,Solo Piano,Piano Sonata No 1 in F minor,3. Menuetto,229,1,12,14,128
+2283,train_data/2283.wav,3073672,Bach,Violin and Harpsichord,Violin Sonata in B minor,2. Allegro,152,0,17,94,55
+2366,train_data/2366.wav,15058652,Beethoven,String Quartet,String Quartet No 12 in E-flat major,"2. Adagio, ma non troppo e molto cantabile",196,1,14,62,50
+2618,train_data/2618.wav,5826769,Beethoven,Solo Piano,Piano Sonata No 6 in F major,1. Allegro,316,1,12,41,6
+2343,train_data/2343.wav,5326054,Beethoven,Solo Piano,Piano Sonata No 14 in C-sharp minor,1. Adagio sostenuto,186,1,12,19,2
+2218,train_data/2218.wav,3199478,Bach,Solo Cello,Cello Suite 3,2. Allemande,127,0,10,4,60
+2240,train_data/2240.wav,1481248,Bach,Solo Piano,"WTK I, No. 17: Prelude and Fugue in A-flat major",1. Prelude,144,0,12,102,34
+1922,train_data/1922.wav,6432392,Dvorak,String Quartet,String Quartet No 10 in E-flat major,3. Romanza,57,4,14,60,141
+2212,train_data/2212.wav,2768562,Bach,Solo Piano,"WTK I, No. 12: Prelude and Fugue in F minor",1. Prelude,122,0,12,97,34
+2215,train_data/2215.wav,1862845,Bach,Solo Piano,"WTK I, No. 1: Prelude and Fugue in C major",2. Fugue,125,0,12,105,76
+2214,train_data/2214.wav,1717395,Bach,Solo Piano,"WTK I, No. 2: Prelude and Fugue in C minor",1. Prelude,124,0,12,110,34
+2336,train_data/2336.wav,3165205,Beethoven,Accompanied Violin,Violin Sonata No 8 in G major,3. Allegro vivace,183,1,2,92,115
+2210,train_data/2210.wav,2853408,Bach,Solo Piano,"WTK I, No. 4: Prelude and Fugue in C-sharp minor",1. Prelude,120,0,12,112,34
+2213,train_data/2213.wav,1855739,Bach,Solo Piano,"WTK I, No. 2: Prelude and Fugue in C minor",2. Fugue,123,0,12,110,76
+2217,train_data/2217.wav,2980467,Bach,Solo Cello,Cello Suite 3,1. Prelude,126,0,10,4,34
+2211,train_data/2211.wav,3795488,Bach,Solo Piano,"WTK I, No. 12: Prelude and Fugue in F minor",2. Fugue,121,0,12,97,76
+2219,train_data/2219.wav,4175831,Bach,Solo Cello,Cello Suite 3,3. Courante,128,0,10,4,121
+2335,train_data/2335.wav,6760072,Beethoven,Accompanied Violin,Violin Sonata No 8 in G major,"2. Tempo di minuetto, ma molto moderato e grazioso",182,1,2,92,102
+2365,train_data/2365.wav,6437826,Beethoven,String Quartet,String Quartet No 12 in E-flat major,1. Maestoso - Allegro,195,1,14,62,29
+1749,train_data/1749.wav,11141956,Schubert,Solo Piano,Piano Sonata in A minor,1. Moderato,9,9,12,46,32
+2359,train_data/2359.wav,4876330,Beethoven,Solo Piano,Piano Sonata No 15 in D major,4. Rondo: Allegro ma non troppo,193,1,12,20,183
+2358,train_data/2358.wav,2206825,Beethoven,Solo Piano,Piano Sonata No 15 in D major,3. Scherzo: Allegro vivace,192,1,12,20,155
+2230,train_data/2230.wav,1353352,Bach,Solo Piano,"WTK I, No. 20: Prelude and Fugue in A minor",1. Prelude,137,0,12,106,34
+2231,train_data/2231.wav,1850306,Bach,Solo Piano,"WTK I, No. 21: Prelude and Fugue in B-flat major",2. Fugue,138,0,12,107,76
+2406,train_data/2406.wav,9792784,Beethoven,Solo Piano,Piano Sonata No 20 in A-flat major,3. Adagio ma non troppo,220,1,12,26,106
+2241,train_data/2241.wav,3875318,Bach,Solo Violin,Violin Sonata No 1 in G minor,1. Adagio,145,0,13,86,0
+2350,train_data/2350.wav,4419919,Beethoven,Solo Piano,Piano Sonata No 14 in C-sharp minor,1. Adagio sostenuto,190,1,12,19,2
+2232,train_data/2232.wav,1257222,Bach,Solo Piano,"WTK I, No. 21: Prelude and Fugue in B-flat major",1. Prelude,139,0,12,107,34
+2514,train_data/2514.wav,6495086,Beethoven,Solo Piano,Piano Sonata No 2 in A major,2. Largo appassionato,269,1,12,25,83
+2105,train_data/2105.wav,4668669,Haydn,String Quartet,Quartet No 53 in D major,2. Adagio - Cantabile,72,6,14,55,39
+2104,train_data/2104.wav,5947389,Haydn,String Quartet,Quartet No 53 in D major,1. Allegro moderato,71,6,14,55,14
+2510,train_data/2510.wav,7233620,Beethoven,Solo Piano,Piano Sonata No 2 in A major,2. Largo appassionato,267,1,12,25,83
+2633,train_data/2633.wav,3632066,Beethoven,Solo Piano,Piano Sonata No 10 in G major,3. Scherzo: Allegro assai,326,1,12,15,154
+2432,train_data/2432.wav,3102094,Beethoven,String Quartet,String Quartet No 16 in F major,2. Vivace,231,1,14,68,103
+2431,train_data/2431.wav,5124598,Beethoven,String Quartet,String Quartet No 16 in F major,1. Allegretto,230,1,14,68,5
+2403,train_data/2403.wav,5730639,Beethoven,String Quartet,String Quartet No 1 in F Major,4. Allegro,217,1,14,59,161
+2433,train_data/2433.wav,7383667,Beethoven,String Quartet,String Quartet No 16 in F major,"3. Lento assai, cantante e tranquillo",232,1,14,68,126
+1807,train_data/1807.wav,7110740,Mozart,String Quartet,String Quartet No 14 in G major,3. Andante cantabile,37,7,14,65,117
+2488,train_data/2488.wav,7060585,Beethoven,Solo Piano,Piano Sonata No 4 in E-flat major,4. Rondo: Poco allegretto e grazioso,254,1,12,39,186
+2522,train_data/2522.wav,5823357,Beethoven,Accompanied Cello,Cello Sonata No. 3 in A major,2. Scherzo. Allegro molto,272,1,0,2,96
+2632,train_data/2632.wav,5470250,Beethoven,Solo Piano,Piano Sonata No 10 in G major,2. Andante,325,1,12,15,61
+2582,train_data/2582.wav,6375550,Beethoven,Solo Piano,Piano Sonata No 22 in F major,2. Allegretto - Piu allegro,302,1,12,30,52
+2345,train_data/2345.wav,7088170,Beethoven,Solo Piano,Piano Sonata No 14 in C-sharp minor,3. Presto agitato,187,1,12,19,139
+2228,train_data/2228.wav,1569437,Bach,Solo Piano,"WTK I, No. 6: Prelude and Fugue in D minor",1. Prelude,135,0,12,114,34
+1817,train_data/1817.wav,4005721,Mozart,Pairs Clarinet-Horn-Bassoon,Serenade in E-flat major,2. Menuetto,41,7,6,57,87
+2341,train_data/2341.wav,7374054,Beethoven,Accompanied Violin,Violin Sonata No 8 in G major,"2. Tempo di minuetto, ma molto moderato e grazioso",184,1,2,92,102
+2227,train_data/2227.wav,2070988,Bach,Solo Piano,"WTK I, No. 6: Prelude and Fugue in D minor",2. Fugue,134,0,12,114,76
+2131,train_data/2131.wav,4392752,Brahms,Wind and Strings Octet,Serenade No 1 in D Major,6. Rondo. Allegro,82,2,20,56,195
+2224,train_data/2224.wav,1740800,Bach,Solo Piano,"WTK I, No. 7: Prelude and Fugue in E-flat major",2. Fugue,132,0,12,115,76
+1811,train_data/1811.wav,7829630,Mozart,Clarinet Quintet,Clarinet Quintet in A major,2. Larghetto,38,7,3,6,79
+2530,train_data/2530.wav,8992810,Beethoven,Solo Piano,Piano Sonata No 20 in C minor,1. Maestoso - Allegro con brio ed appassionato,277,1,12,27,30
+1818,train_data/1818.wav,6519328,Mozart,Pairs Clarinet-Horn-Bassoon,Serenade in E-flat major,3. Adagio,42,7,6,57,104
+2225,train_data/2225.wav,3418907,Bach,Solo Piano,"WTK I, No. 7: Prelude and Fugue in E-flat major",1. Prelude,133,0,12,115,34
+2138,train_data/2138.wav,6878773,Brahms,String Quartet,String Quartet in C minor,2. Romanze: Poco adagio,83,2,14,77,93
+2388,train_data/2388.wav,7578854,Beethoven,Solo Piano,Piano Sonata No 17 in D minor,1. Largo - Allegro,209,1,12,22,28
+1758,train_data/1758.wav,7494427,Schubert,Solo Piano,Piano Sonata in C minor,2. Adagio,16,9,12,47,38
+2221,train_data/2221.wav,3858600,Bach,Solo Cello,Cello Suite 3,5. Bouree,130,0,10,4,191
+2501,train_data/2501.wav,5874835,Beethoven,Accompanied Violin,Violin Sonata No 3 in E-flat major,2. Adagio con molta espressione,260,1,2,89,44
+1756,train_data/1756.wav,5943798,Schubert,Solo Piano,Piano Sonata in A minor,3. Allegro vivace,14,9,12,46,115
+1757,train_data/1757.wav,11369744,Schubert,Solo Piano,Piano Sonata in C minor,1. Allegro,15,9,12,47,6
+1752,train_data/1752.wav,5803364,Schubert,Solo Piano,Piano Sonata in A minor,4. Rondo. Allegro vivace,12,9,12,46,181
+1755,train_data/1755.wav,3676787,Schubert,Solo Piano,Piano Sonata in A minor,2. Andante,13,9,12,46,61
+1893,train_data/1893.wav,5213623,Mozart,Piano Trio,Piano Trio No 6 in G major,3. Allegretto,53,7,9,52,110
+2478,train_data/2478.wav,5107880,Beethoven,Solo Piano,Piano Sonata No 3 in C major,4. Allegro assai,247,1,12,37,162
+1751,train_data/1751.wav,7610619,Schubert,Solo Piano,Piano Sonata in A minor,3. Scherzo. Allegro vivace - Trio. Un poco piu lento,11,9,12,46,151
+1750,train_data/1750.wav,12546717,Schubert,Solo Piano,Piano Sonata in A minor,2. Andante poco mosso,10,9,12,46,66
+2629,train_data/2629.wav,8287295,Beethoven,Accompanied Violin,Violin Sonata No 10 in G major,4. Poco allegretto,324,1,2,87,175
+1859,train_data/1859.wav,6284017,Mozart,String Quartet,String Quartet No 18 in A major,2. Menuetto and Trio,49,7,14,69,88
+2482,train_data/2482.wav,9088523,Beethoven,String Quartet,String Quartet No 5 in A major,3. Andante cantabile (Theme with variations,250,1,14,73,118
+2436,train_data/2436.wav,10950113,Beethoven,Solo Piano,Piano Sonata No 21 in C major,1. Allegro con brio,233,1,12,29,9
+2346,train_data/2346.wav,5374538,Beethoven,Solo Piano,Piano Sonata No 14 in C-sharp minor,1. Adagio sostenuto,188,1,12,19,2
+2238,train_data/2238.wav,960053,Bach,Solo Piano,"WTK I, No. 23: Prelude and Fugue in B major",1. Prelude,142,0,12,109,34
+2376,train_data/2376.wav,9300846,Beethoven,String Quartet,String Quartet No 8 in E minor,1. Allegro,202,1,14,76,6
+2533,train_data/2533.wav,17087426,Beethoven,Solo Piano,Piano Sonata No 20 in C minor,2. Arietta: Adagio,280,1,12,27,71
+2239,train_data/2239.wav,1920523,Bach,Solo Piano,"WTK I, No. 17: Prelude and Fugue in A-flat major",2. Fugue,143,0,12,102,76
+2377,train_data/2377.wav,12285493,Beethoven,String Quartet,String Quartet No 8 in E minor,2. Molto adagio,203,1,14,76,89
+1805,train_data/1805.wav,5708487,Mozart,String Quartet,String Quartet No 14 in G major,1. Allegro vivace assai,36,7,14,65,20
+2127,train_data/2127.wav,8298162,Brahms,Wind and Strings Octet,Serenade No 1 in D Major,2. Scherzo. Allegro non troppo,81,2,20,56,97
+2334,train_data/2334.wav,6552347,Beethoven,Accompanied Violin,Violin Sonata No 8 in G major,1. Allegro assai,181,1,2,92,8
+2082,train_data/2082.wav,5468996,Cambini,Wind Quintet,Wind Quintet No 3 in F Major,2. Larghetto sostenuto,69,3,19,120,81
+1812,train_data/1812.wav,7457646,Mozart,Clarinet Quintet,Clarinet Quintet in A major,3. Menuetto,39,7,3,6,128
+2081,train_data/2081.wav,4798590,Cambini,Wind Quintet,Wind Quintet No 3 in F Major,1. Allegro maestoso,68,3,19,120,13
+2234,train_data/2234.wav,1024836,Bach,Solo Piano,"WTK I, No. 11: Prelude and Fugue in F major",1. Prelude,140,0,12,96,34
+2080,train_data/2080.wav,3742407,Cambini,Wind Quintet,Wind Quintet No 2 in D Minor,3. Presto ma non tanto,67,3,19,119,140
+2237,train_data/2237.wav,1747070,Bach,Solo Piano,"WTK I, No. 23: Prelude and Fugue in B major",2. Fugue,141,0,12,109,76
+2371,train_data/2371.wav,3284324,Beethoven,Solo Piano,Piano Sonata No 9 in E major,2. Allegretto,198,1,12,44,51
+2083,train_data/2083.wav,3920040,Cambini,Wind Quintet,Wind Quintet No 3 in F Major,3. Rondo Allegro con brio,70,3,19,120,144
+1768,train_data/1768.wav,4653976,Schubert,Solo Piano,Piano Sonata in A major,2. Andante,23,9,12,45,61
+1763,train_data/1763.wav,9605120,Schubert,Solo Piano,4 Impromptus,1. Impromptu in F minor,19,9,12,0,27
+1760,train_data/1760.wav,10489104,Schubert,Solo Piano,Piano Sonata in C minor,4. Allegro,18,9,12,47,161
+2532,train_data/2532.wav,8774636,Beethoven,Solo Piano,Piano Sonata No 20 in C minor,1. Maestoso - Allegro con brio ed appassionato,279,1,12,27,30
+1766,train_data/1766.wav,6837813,Schubert,Solo Piano,4 Impromptus,4. Impromptu in F minor,22,9,12,0,171
+2531,train_data/2531.wav,15873672,Beethoven,Solo Piano,Piano Sonata No 20 in C minor,2. Arietta: Adagio,278,1,12,27,71
+2209,train_data/2209.wav,2572539,Bach,Solo Piano,"WTK I, No. 4: Prelude and Fugue in C-sharp minor",2. Fugue,119,0,12,112,76
+1765,train_data/1765.wav,10825561,Schubert,Solo Piano,4 Impromptus,3. Impromptu in B-flat major,21,9,12,0,124
+1764,train_data/1764.wav,7012102,Schubert,Solo Piano,4 Impromptus,2. Impromptu in A-flat major,20,9,12,0,77

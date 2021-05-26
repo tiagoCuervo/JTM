@@ -1,4 +1,3 @@
-# Ignore everything in this directory
-*
-# Except this file
-!.gitignore
+/musicnet_lousy/*
+musicnet_metadata_train_ensemble_trainsplit.csv
+musicnet_metadata_train_ensemble_valsplit.csv

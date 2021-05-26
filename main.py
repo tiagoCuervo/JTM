@@ -10,11 +10,13 @@ from trainer import run
 from datetime import datetime
 import os
 import argparse
-from default_config import setDefaultConfig, rawAudioPath, metadataPathTrain, metadataPathVal
+from default_config import setDefaultConfig, rawAudioPath, metadataPathTrain, metadataPathTest
 import sys
 import random
 from utils import setSeed, getCheckpointData, loadArgs, SchedulerCombiner, rampSchedulingFunction
 import json
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 def getCriterion(config):
@@ -111,9 +113,9 @@ def parseArgs(argv):
 
 
 def main(config):
-    if not (os.path.exists(rawAudioPath) and os.path.exists(metadataPathTrain) and os.path.exists(metadataPathVal)):
+    if not (os.path.exists(rawAudioPath) and os.path.exists(metadataPathTrain) and os.path.exists(metadataPathTest)):
         print("The audio data and csv metadata must be located in the following paths:\n"
-              f"1. {rawAudioPath}\n2. {metadataPathTrain}\n3. {metadataPathVal}")
+              f"1. {rawAudioPath}\n2. {metadataPathTrain}\n3. {metadataPathTest}")
         sys.exit()
 
     config = parseArgs(config)
@@ -134,9 +136,29 @@ def main(config):
     print('-' * 50)
 
     useGPU = torch.cuda.is_available()
+
+    if not os.path.exists(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv'):
+        musicNetMetadataTrain = pd.read_csv('data/musicnet_metadata_train.csv', index_col='id')
+        try:
+            metadataTrain, metadataVal = train_test_split(musicNetMetadataTrain, test_size=0.1,
+                                                          stratify=musicNetMetadataTrain[config.labelsBy])
+        except ValueError:
+            for col, count in zip(musicNetMetadataTrain[config.labelsBy].value_counts().index,
+                                  musicNetMetadataTrain[config.labelsBy].value_counts().values):
+                if count == 1:
+                    subDF = musicNetMetadataTrain.loc[musicNetMetadataTrain[config.labelsBy] == col]
+                    musicNetMetadataTrain = musicNetMetadataTrain.append(subDF)
+            metadataTrain, metadataVal = train_test_split(musicNetMetadataTrain, test_size=0.1,
+                                                          stratify=musicNetMetadataTrain[config.labelsBy])
+        metadataTrain.to_csv(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv')
+        metadataVal.to_csv(f'data/musicnet_metadata_train_{config.labelsBy}_valsplit.csv')
+    else:
+        metadataTrain = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv', index_col='id')
+        metadataVal = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_valsplit.csv', index_col='id')
+
     print("Loading the training dataset")
     trainDataset = AudioBatchData(rawAudioPath=rawAudioPath,
-                                  metadataPath=metadataPathTrain,
+                                  metadata=metadataTrain,
                                   sizeWindow=config.sizeWindow,
                                   labelsBy=config.labelsBy,
                                   outputPath='data/musicnet_lousy/train_data/train',
@@ -148,7 +170,7 @@ def main(config):
 
     print("Loading the validation dataset")
     valDataset = AudioBatchData(rawAudioPath=rawAudioPath,
-                                metadataPath=metadataPathVal,
+                                metadata=metadataVal,
                                 sizeWindow=config.sizeWindow,
                                 labelsBy=config.labelsBy,
                                 outputPath='data/musicnet_lousy/train_data/val',

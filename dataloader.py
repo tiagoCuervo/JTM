@@ -1,6 +1,5 @@
 from pathlib import Path
 import os
-import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.sampler import Sampler, BatchSampler
@@ -17,7 +16,7 @@ class AudioBatchData(Dataset):
 
     def __init__(self,
                  rawAudioPath,
-                 metadataPath,
+                 metadata,
                  sizeWindow,
                  labelsBy='composer',
                  outputPath=None,
@@ -40,16 +39,15 @@ class AudioBatchData(Dataset):
         self.sizeWindow = sizeWindow
         self.useGPU = useGPU
 
-        self.sequencesData = pd.read_csv(metadataPath, index_col='id')
-        self.sequencesData = self.sequencesData.sort_values(by=labelsBy)
-        self.sequencesData[labelsBy] = self.sequencesData[labelsBy].astype('category')
-        self.sequencesData[labelsBy] = self.sequencesData[labelsBy].cat.codes
+        # self.sequencesData = pd.read_csv(metadataPath, index_col='id')
+        self.sequencesData = metadata.sort_values(by=labelsBy)
+        # self.sequencesData[labelsBy] = self.sequencesData[labelsBy].astype('category')
+        # self.sequencesData[labelsBy] = self.sequencesData[labelsBy].cat.codes
 
         self.totSize = self.sequencesData['length'].sum()
-        # print("Total size:", self.totSize)
-        # print("Length of data set:", self.__len__())
 
         self.category = labelsBy
+        self.labels = self.sequencesData[labelsBy + '_cat'].unique()
 
         if outputPath is None:
             self.chunksDir = self.rawAudioPath / labelsBy
@@ -82,6 +80,7 @@ class AudioBatchData(Dataset):
         self.currentPack = -1
         self.nextPack = 0
         self.sequenceIdx = 0
+        self.previousCategory = -1
 
         self.data = None
 
@@ -126,22 +125,25 @@ class AudioBatchData(Dataset):
             packageIdx = [0]
             self.seqLabel = [0]
             packageSize = 0
-            with open(self.chunksDir / (
-                    'ids_' + self.packs[self.currentPack][0].split('_', maxsplit=1)[-1]), 'rb') as handle:
-                chunkIds = pickle.load(handle)
-            previousCategory = self.sequencesData.loc[chunkIds[0]][self.category]
+            if self.currentPack == 0:
+                with open(self.chunksDir / (
+                        'ids_' + self.packs[0][0].split('_', maxsplit=1)[-1]), 'rb') as handle:
+                    chunkIds = pickle.load(handle)
+                self.previousCategory = self.sequencesData.loc[chunkIds[0]][self.category]
             for packagePath in self.packs[self.currentPack]:
                 with open(self.chunksDir / ('ids_' + packagePath.split('_', maxsplit=1)[-1]), 'rb') as handle:
                     chunkIds = pickle.load(handle)
                 for seqId in chunkIds:
-                    currentCategory = self.sequencesData.loc[seqId][self.category]
-                    if currentCategory != previousCategory:
+                    currentCategory = np.unique(self.sequencesData.loc[seqId][self.category])[0]
+                    if currentCategory != self.previousCategory:
                         self.categoryLabel.append(packageSize)
-                    previousCategory = currentCategory
-                    packageSize += self.sequencesData.loc[seqId].length
+                        # print(f"{self.previousCategory}, {self.categoryLabel[-2]}, {self.categoryLabel[-1]}")
+                    self.previousCategory = currentCategory
+                    packageSize += np.unique(self.sequencesData.loc[seqId]['length'])[0]
                     self.seqLabel.append(packageSize)
-                self.categoryLabel.append(packageSize)
                 packageIdx.append(packageSize)
+            self.categoryLabel.append(packageSize)
+            # print(f"{self.previousCategory}, {self.categoryLabel[-2]}, {self.categoryLabel[-1]}")
 
             self.data = torch.empty(size=(packageSize,))
 
@@ -169,11 +171,10 @@ class AudioBatchData(Dataset):
             del self.seqLabel
 
     def getCategoryLabel(self, idx):
+        # print(len(self.categoryLabel))
+        # print(self.categoryLabel)
         idCategory = next(x[0] for x in enumerate(self.categoryLabel) if x[1] > idx) - 1
-        return idCategory
-
-    def getSequenceLabel(self, idx):
-        return self.categoryLabel[idx]
+        return self.labels[idCategory]
 
     def __len__(self):
         return self.totSize // self.sizeWindow
