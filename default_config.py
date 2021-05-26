@@ -59,11 +59,11 @@ def setDefaultConfig(parser):
     #                    default='cpc',
     #                    help='Replace the encoder network by mfcc features '
     #                    'or learned filter banks')
-    # group.add_argument('--normMode', type=str, default='layerNorm',
-    #                    choices=['instanceNorm', 'ID', 'layerNorm',
-    #                             'batchNorm'],
-    #                    help="Type of normalization to use in the encoder "
-    #                    "network (default is layerNorm).")
+    group.add_argument('--normMode', type=str, default='layerNorm',
+                       choices=['instanceNorm', 'ID', 'layerNorm',
+                                'batchNorm'],
+                       help="Type of normalization to use in the encoder "
+                       "network (default is layerNorm).")
     group.add_argument('--onEncoder', action='store_true',
                        help="(Supervised mode only) Perform the "
                        "classification on the encoder's output.")
