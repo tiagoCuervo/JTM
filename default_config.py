@@ -1,5 +1,9 @@
 import argparse
 
+rawAudioPath = 'data/musicnet_lousy/train_data'
+metadataPathTrain = 'data/musicnet_lousy/metadata_train.csv'
+metadataPathVal = 'data/musicnet_lousy/metadata_train.csv'
+
 
 def getDefaultConfig():
     parser = setDefaultConfig(argparse.ArgumentParser())

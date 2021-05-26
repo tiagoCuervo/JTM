@@ -5,15 +5,11 @@ from trainer import run
 from datetime import datetime
 import os
 import argparse
-from default_config import setDefaultConfig
+from default_config import setDefaultConfig, rawAudioPath, metadataPathTrain, metadataPathVal
 import sys
 import random
 from utils import setSeed, getCheckpointData, loadArgs, SchedulerCombiner, rampSchedulingFunction
 import json
-
-rawAudioPath = 'data/musicnet_lousy/train_data'
-metadataPathTrain = 'data/musicnet_lousy/metadata_train.csv'
-metadataPathVal = 'data/musicnet_lousy/metadata_train.csv'
 
 
 def getCriterion(config):
