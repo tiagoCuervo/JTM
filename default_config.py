@@ -68,18 +68,16 @@ def setDefaultConfig(parser):
                        "classification on the encoder's output.")
     group.add_argument('--randomSeed', type=int, default=None,
                        help="Set a specific random seed.")
-    # group.add_argument('--sincNetEncoder', action='store_true',
-    #                    help="Use SincNet as the encoder")
     group.add_argument('--arMode', default='transformer',
                        choices=['GRU', 'LSTM', 'RNN', 'transformer'],
                        help="Architecture to use for the auto-regressive "
                        "network (default is transformer).")
     group.add_argument('--nLevelsGRU', type=int, default=1,
                        help='Number of layers in the autoregressive network.')
-    group.add_argument('--rnnMode', type=str, default='transformer',
-                       choices=['transformer', 'RNN', 'LSTM', 'linear',
-                                'ffd', 'conv4', 'conv8', 'conv12'],
-                       help="Architecture to use for the prediction network")
+    # group.add_argument('--rnnMode', type=str, default='transformer',
+    #                    choices=['transformer', 'RNN', 'LSTM', 'linear',
+    #                             'ffd', 'conv4', 'conv8', 'conv12'],
+    #                    help="Architecture to use for the prediction network")
     group.add_argument('--dropout', action='store_true',
                        help="Add a dropout layer at the output of the "
                        "prediction network.")
