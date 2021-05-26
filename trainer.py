@@ -24,7 +24,6 @@ def save_logs(data, pathLogs):
 
 def save_checkpoint(model_state, criterion_state, optimizer_state, best_state,
                     path_checkpoint):
-
     state_dict = {"gEncoder": model_state,
                   "cpcCriterion": criterion_state,
                   "optimizer": optimizer_state,
@@ -60,7 +59,10 @@ def trainStep(dataLoader,
               cpcCriterion,
               optimizer,
               loggingStep,
-              useGPU):
+              useGPU,
+              log2Board,
+              totalSteps,
+              experiment):
     cpcModel.train()
     cpcCriterion.train()
 
@@ -68,23 +70,18 @@ def trainStep(dataLoader,
     n_examples = 0
     logs, lastlogs = {}, None
     iterCtr = 0
+
+    gradmapGEncoder = {}
+    gradmapGAR = {}
+    gradmapWPrediction = {}
+
+    if log2Board > 1 and totalSteps == 0:
+        logWeights(cpcModel.gEncoder, totalSteps, experiment)
+        logWeights(cpcModel.gAR, totalSteps, experiment)
+        logWeights(cpcCriterion.wPrediction, totalSteps, experiment)
+
     for step, fulldata in enumerate(dataLoader):
         batchData, label = fulldata
-        # if step % 100 == 0:
-        #     print("Step: ", step)
-        #     print("Batch shape: ", batchData.shape)
-        #     print("Labels: ", label)
-        #     plt.figure()
-        #     plt.plot(batchData[0, :, :].view(-1).detach().cpu().numpy())
-        #     plt.plot(batchData[1, :, :].view(-1).detach().cpu().numpy())
-        #     plt.plot(batchData[2, :, :].view(-1).detach().cpu().numpy())
-        #     plt.plot(batchData[3, :, :].view(-1).detach().cpu().numpy())
-        #     plt.plot(batchData[4, :, :].view(-1).detach().cpu().numpy())
-        #     plt.plot(batchData[5, :, :].view(-1).detach().cpu().numpy())
-        #     plt.plot(batchData[6, :, :].view(-1).detach().cpu().numpy())
-        #     plt.plot(batchData[7, :, :].view(-1).detach().cpu().numpy())
-        #     plt.show()
-        # assert False
         n_examples += batchData.size(0)
         if useGPU:
             batchData = batchData.cuda(non_blocking=True)
@@ -95,7 +92,11 @@ def trainStep(dataLoader,
 
         totLoss.backward()
 
-        # Show grads ?
+        if log2Board > 1:
+            gradmapGEncoder = updateGradientMap(cpcModel.gEncoder, gradmapGEncoder)
+            gradmapGAR = updateGradientMap(cpcModel.gAR, gradmapGAR)
+            gradmapWPrediction = updateGradientMap(cpcCriterion.wPrediction, gradmapWPrediction)
+
         optimizer.step()
         optimizer.zero_grad()
 
@@ -103,9 +104,16 @@ def trainStep(dataLoader,
             logs["locLoss_train"] = np.zeros(allLosses.size(1))
             logs["locAcc_train"] = np.zeros(allLosses.size(1))
 
-        iterCtr += 1
         logs["locLoss_train"] += (allLosses.mean(dim=0)).detach().cpu().numpy()
         logs["locAcc_train"] += (allAcc.mean(dim=0)).cpu().numpy()
+        iterCtr += 1
+
+        if log2Board:
+            for t in range(len(logs["locLoss_train"])):
+                experiment.log_metric(f"Losses/batch/locLoss_train_{t}", logs["locLoss_train"][t] / iterCtr,
+                                      step=totalSteps + iterCtr)
+                experiment.log_metric(f"Accuracy/batch/locAcc_train_{t}", logs["locAcc_train"][t] / iterCtr,
+                                      step=totalSteps + iterCtr)
 
         if (step + 1) % loggingStep == 0:
             new_time = time.perf_counter()
@@ -118,6 +126,16 @@ def trainStep(dataLoader,
             lastlogs = deepcopy(logs)
             show_logs("Training loss", locLogs)
             startTime, n_examples = new_time, 0
+
+            if log2Board > 1:
+                # Log gradients
+                logGradients(gradmapGEncoder, totalSteps + iterCtr, experiment, scaleBy=1.0 / iterCtr)
+                logGradients(gradmapGAR, totalSteps + iterCtr, experiment, scaleBy=1.0 / iterCtr)
+                logGradients(gradmapWPrediction, totalSteps + iterCtr, experiment, scaleBy=1.0 / iterCtr)
+                # Log weights
+                logWeights(cpcModel.gEncoder, totalSteps + iterCtr, experiment)
+                logWeights(cpcModel.gAR, totalSteps + iterCtr, experiment)
+                logWeights(cpcCriterion.wPrediction, totalSteps + iterCtr, experiment)
 
     logs = update_logs(logs, iterCtr)
     logs["iter"] = iterCtr
@@ -162,38 +180,74 @@ def valStep(dataLoader,
     return logs
 
 
-def run(trainDataset,
-        valDataset,
-        batchSize,
-        samplingMode,
-        cpcModel,
-        cpcCriterion,
-        nEpoch,
-        optimizer,
-        pathCheckpoint,
-        logs,
-        useGPU,
-        log2Board=False):
+def updateGradientMap(model, gradMap):
+    for name, param in model.named_parameters():
+        paramName = name.split('.')
+        paramLabel = paramName[-1]
+        if paramLabel not in ['weight_ih_l0', 'weight_hh_l0', 'bias_ih_l0', 'bias_hh_l0',
+                              'lowHz_', 'bandHz_', 'weight', 'bias']:
+            continue
+        param = model
+        for i in range(len(paramName)):
+            param = getattr(param, paramName[i])
+        gradMap.setdefault("%s/%s" % ("Gradients", name), 0)
+        gradMap["%s/%s" % ("Gradients", name)] += param.grad
+    return gradMap
+
+
+def logGradients(gradMap, step, experiment, scaleBy=1.0):
+    for k, v in gradMap.items():
+        experiment.log_histogram_3d(v.cpu().detach().numpy() * scaleBy, name=k, step=step)
+
+
+def logWeights(model, step, experiment):
+    for name, param in model.named_parameters():
+        paramName = name.split('.')
+        paramLabel = paramName[-1]
+        if paramLabel not in ['weight_ih_l0', 'weight_hh_l0', 'bias_ih_l0', 'bias_hh_l0',
+                              'lowHz_', 'bandHz_', 'weight', 'bias']:
+            continue
+        param = model
+        for i in range(len(paramName)):
+            param = getattr(param, paramName[i])
+        experiment.log_histogram_3d(param.cpu().detach().numpy(), name="%s/%s" % ("Parameters", name), step=step)
+
+
+def trainingLoop(trainDataset,
+                 valDataset,
+                 batchSize,
+                 samplingMode,
+                 cpcModel,
+                 cpcCriterion,
+                 nEpoch,
+                 optimizer,
+                 pathCheckpoint,
+                 logs,
+                 useGPU,
+                 log2Board=0,
+                 experiment=None):
     print(f"Running {nEpoch} epochs")
     startEpoch = len(logs["epoch"])
     bestAcc = 0
     bestStateDict = None
     startTime = time.time()
     epoch = 0
+    totalSteps = 0
     try:
         for epoch in range(startEpoch, nEpoch):
-
             print(f"Starting epoch {epoch}")
             trainLoader = trainDataset.getDataLoader(batchSize, samplingMode,
                                                      True, numWorkers=0)
-
-            valLoader = valDataset.getDataLoader(batchSize, 'sequential', False,
+            valLoader = valDataset.getDataLoader(batchSize, samplingMode, False,
                                                  numWorkers=0)
 
             print("Training dataset %d batches, Validation dataset %d batches, batch size %d" %
                   (len(trainLoader), len(valLoader), batchSize))
 
-            locLogsTrain = trainStep(trainLoader, cpcModel, cpcCriterion, optimizer, logs["logging_step"], useGPU)
+            locLogsTrain = trainStep(trainLoader, cpcModel, cpcCriterion, optimizer, logs["logging_step"],
+                                     useGPU, log2Board, totalSteps, experiment)
+
+            totalSteps += locLogsTrain['iter']
 
             locLogsVal = valStep(valLoader, cpcModel, cpcCriterion, useGPU)
 
@@ -204,6 +258,18 @@ def run(trainDataset,
                 torch.cuda.empty_cache()
 
             currentAccuracy = float(locLogsVal["locAcc_val"].mean())
+
+            if log2Board:
+                for t in range(len(locLogsVal["locLoss_val"])):
+                    experiment.log_metric(f"Losses/epoch/locLoss_train_{t}",
+                                          locLogsTrain["locLoss_train"][t] / totalSteps, step=epoch)
+                    experiment.log_metric(f"Accuracy/epoch/locAcc_train_{t}",
+                                          locLogsTrain["locAcc_train"][t] / totalSteps, step=epoch)
+                    experiment.log_metric(f"Losses/epoch/locLoss_val_{t}", locLogsVal["locLoss_val"][t] / totalSteps,
+                                          step=epoch)
+                    experiment.log_metric(f"Accuracy/epoch/locAcc_val_{t}", locLogsVal["locAcc_val"][t] / totalSteps,
+                                          step=epoch)
+
             if currentAccuracy > bestAcc:
                 bestStateDict = cpcModel.state_dict()
 
@@ -232,3 +298,26 @@ def run(trainDataset,
                             f"{pathCheckpoint}_{epoch}_interrupted.pt")
             save_logs(logs, pathCheckpoint + "_logs.json")
         return
+
+
+def run(trainDataset,
+        valDataset,
+        batchSize,
+        samplingMode,
+        cpcModel,
+        cpcCriterion,
+        nEpoch,
+        optimizer,
+        pathCheckpoint,
+        logs,
+        useGPU,
+        log2Board=0,
+        experiment=None):
+    if log2Board:
+        with experiment.train():
+            trainingLoop(trainDataset, valDataset, batchSize, samplingMode, cpcModel, cpcCriterion, nEpoch, optimizer,
+                         pathCheckpoint, logs, useGPU, log2Board, experiment)
+            experiment.end()
+    else:
+        trainingLoop(trainDataset, valDataset, batchSize, samplingMode, cpcModel, cpcCriterion, nEpoch, optimizer,
+                     pathCheckpoint, logs, useGPU, log2Board, experiment)

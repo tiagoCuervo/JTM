@@ -22,7 +22,8 @@ class AudioBatchData(Dataset):
                  labelsBy='composer',
                  outputPath=None,
                  CHUNK_SIZE=1e9,
-                 NUM_CHUNKS_INMEM=2):
+                 NUM_CHUNKS_INMEM=2,
+                 useGPU=False):
         """
         Args:
             - rawAudioPath (string): path to the raw audio files
@@ -37,6 +38,7 @@ class AudioBatchData(Dataset):
         self.CHUNK_SIZE = CHUNK_SIZE
         self.rawAudioPath = Path(rawAudioPath)
         self.sizeWindow = sizeWindow
+        self.useGPU = useGPU
 
         self.sequencesData = pd.read_csv(metadataPath, index_col='id')
         self.sequencesData = self.sequencesData.sort_values(by=labelsBy)
@@ -124,7 +126,10 @@ class AudioBatchData(Dataset):
             packageIdx = [0]
             self.seqLabel = [0]
             packageSize = 0
-            previousCategory = 0
+            with open(self.chunksDir / (
+                    'ids_' + self.packs[self.currentPack][0].split('_', maxsplit=1)[-1]), 'rb') as handle:
+                chunkIds = pickle.load(handle)
+            previousCategory = self.sequencesData.loc[chunkIds[0]][self.category]
             for packagePath in self.packs[self.currentPack]:
                 with open(self.chunksDir / ('ids_' + packagePath.split('_', maxsplit=1)[-1]), 'rb') as handle:
                     chunkIds = pickle.load(handle)
@@ -135,12 +140,18 @@ class AudioBatchData(Dataset):
                     previousCategory = currentCategory
                     packageSize += self.sequencesData.loc[seqId].length
                     self.seqLabel.append(packageSize)
+                self.categoryLabel.append(packageSize)
                 packageIdx.append(packageSize)
 
             self.data = torch.empty(size=(packageSize,))
+
             for i, packagePath in enumerate(self.packs[self.currentPack]):
                 with open(self.chunksDir / packagePath, 'rb') as handle:
                     self.data[packageIdx[i]:packageIdx[i + 1]] = pickle.load(handle)
+            if self.useGPU:
+                self.data = self.data.cuda(non_blocking=True)
+                print("Data moved to GPU")
+                print("Data in: ", self.data.device)
             print(f'Loaded {len(self.seqLabel) - 1} sequences, elapsed={time.time() - startTime:.3f} secs')
 
         self.nextPack = (self.currentPack + 1) % len(self.packs)
@@ -330,10 +341,11 @@ class SameTrackSampler(Sampler):
         if self.samplingIntervals[0] != 0:
             raise AttributeError("Sampling intervals should start at zero")
 
+        # print("Sampling intervals:\n", self.samplingIntervals)
         nWindows = len(self.samplingIntervals) - 1
         self.sizeSamplers = [(self.samplingIntervals[i + 1] -
                               self.samplingIntervals[i]) // self.sizeWindow
-                             for i in range(nWindows)]  # How many windows a sequence/category lasts 
+                             for i in range(nWindows)]  # How many windows a sequence/category lasts
 
         # assert False
         if self.offset > 0:
