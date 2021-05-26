@@ -115,11 +115,6 @@ def parseArgs(argv):
     #                                                          "debugging purposes.")
     config = parser.parse_args(argv)
 
-    if not (os.path.exists(rawAudioPath) and os.path.exists(metadataPathTrain) and os.path.exists(metadataPathVal)):
-        print("Please make sure the following paths exist:\n"
-              f"1. {rawAudioPath}\n2. {metadataPathTrain}\n3. {metadataPathVal}")
-        sys.exit()
-
     if config.pathCheckpoint is not None:
         config.pathCheckpoint = os.path.abspath(config.pathCheckpoint)
 
@@ -134,6 +129,11 @@ def parseArgs(argv):
 
 
 def main(config):
+    if not (os.path.exists(rawAudioPath) and os.path.exists(metadataPathTrain) and os.path.exists(metadataPathVal)):
+        print("Please make sure the following paths exist:\n"
+              f"1. {rawAudioPath}\n2. {metadataPathTrain}\n3. {metadataPathVal}")
+        sys.exit()
+
     config = parseArgs(config)
     setSeed(config.random_seed)
     logs = {"epoch": [], "iter": [], "saveStep": config.saveStep, "loggingStep": config.loggingStep}

@@ -5,7 +5,6 @@ import argparse
 from default_config import getDefaultConfig
 import os
 import json
-from model import CPCAR, buildTransformerAR, CPCModel, ConcatenatedModel
 from copy import deepcopy
 from bisect import bisect_left
 

@@ -2,8 +2,6 @@ import numpy as np
 import torch
 import time
 from copy import deepcopy
-# import matplotlib.pyplot as plt
-import json
 from utils import saveLogs, updateLogs, showLogs, saveCheckpoint
 
 
@@ -240,7 +238,7 @@ def trainingLoop(trainDataset,
                 criterionStateDict = cpcCriterion.state_dict()
 
                 saveCheckpoint(modelStateDict, criterionStateDict, optimizer.state_dict(), bestStateDict,
-                                f"{pathCheckpoint}_{epoch}.pt")
+                               f"{pathCheckpoint}_{epoch}.pt")
                 saveLogs(logs, pathCheckpoint + "_logs.json")
     except KeyboardInterrupt:
         if pathCheckpoint is not None:
@@ -248,7 +246,7 @@ def trainingLoop(trainDataset,
             criterionStateDict = cpcCriterion.state_dict()
 
             saveCheckpoint(modelStateDict, criterionStateDict, optimizer.state_dict(), bestStateDict,
-                            f"{pathCheckpoint}_{epoch}_interrupted.pt")
+                           f"{pathCheckpoint}_{epoch}_interrupted.pt")
             saveLogs(logs, pathCheckpoint + "_logs.json")
         return
 
