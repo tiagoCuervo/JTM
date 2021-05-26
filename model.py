@@ -563,7 +563,7 @@ def loadModel(pathCheckpoints, loadStateDict=True):
             hiddenGar += hg
             hiddenEncoder += he
         else:
-            encoderNet = CPCEncoder(locArgs.hiddenEncoder, 'layerNorm', sincNet=locArgs.sincNetEncoder)
+            encoderNet = CPCEncoder(locArgs.hiddenEncoder, 'layerNorm', sincNet=locArgs.encoderType == 'sinc')
 
             arNet = getAR(locArgs)
             m_ = CPCModel(encoderNet, arNet)

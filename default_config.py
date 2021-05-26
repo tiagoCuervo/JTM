@@ -54,11 +54,10 @@ def setDefaultConfig(parser):
     group.add_argument('--cpcMode', type=str, default=None,
                        choices=['reverse', 'none'],
                        help='Some variations on CPC.')
-    # group.add_argument('--encoder_type', type=str,
-    #                    choices=['cpc', 'mfcc', 'lfb'],
-    #                    default='cpc',
-    #                    help='Replace the encoder network by mfcc features '
-    #                    'or learned filter banks')
+    group.add_argument('--encoderType', type=str,
+                       choices=['sinc', None],
+                       default='sinc',
+                       help='Use SincNet or simple 1D convolution as encoder.')
     group.add_argument('--normMode', type=str, default='layerNorm',
                        choices=['instanceNorm', 'ID', 'layerNorm',
                                 'batchNorm'],
@@ -69,8 +68,8 @@ def setDefaultConfig(parser):
                        "classification on the encoder's output.")
     group.add_argument('--randomSeed', type=int, default=None,
                        help="Set a specific random seed.")
-    group.add_argument('--sincNetEncoder', action='store_true',
-                       help="Use SincNet as the encoder")
+    # group.add_argument('--sincNetEncoder', action='store_true',
+    #                    help="Use SincNet as the encoder")
     group.add_argument('--arMode', default='transformer',
                        choices=['GRU', 'LSTM', 'RNN', 'transformer'],
                        help="Architecture to use for the auto-regressive "

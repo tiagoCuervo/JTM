@@ -158,7 +158,7 @@ def main(config):
         cpcModel, config.hiddenGar, config.hiddenEncoder = loadModel(config.load)
     else:
         # Encoder network
-        encoderNet = CPCEncoder(config.hiddenEncoder, 'layerNorm', sincNet=config.sincNetEncoder)
+        encoderNet = CPCEncoder(config.hiddenEncoder, 'layerNorm', sincNet=config.encoderType == 'sinc')
         # AR Network
         arNet = getAR(config)
 
@@ -223,9 +223,15 @@ def main(config):
 
     experiment = None
     if config.log2Board:
-        cometKey = input("Please enter your Comet.ml API key: ")
         comet_ml.init(project_name="jtm", workspace="tiagocuervo")
-        experiment = comet_ml.Experiment(cometKey)
+        if not os.path.exists('.comet.config'):
+            cometKey = input("Please enter your Comet.ml API key: ")
+            experiment = comet_ml.Experiment(cometKey)
+            cometConfigFile = open(".comet.config", "w")
+            cometConfigFile.write(f"[comet]\napi_key={cometKey}")
+            cometConfigFile.close()
+        else:
+            experiment = comet_ml.Experiment()
         experiment.log_parameters(vars(config))
 
     run(trainDataset, valDataset, batchSize, config.samplingType, cpcModel, cpcCriterion, config.nEpoch, optimizer,
