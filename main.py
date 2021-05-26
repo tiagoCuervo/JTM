@@ -1,6 +1,6 @@
 import torch
 from dataloader import AudioBatchData
-from model import CPCEncoder, CPCAR, CPCModel, CPCUnsupersivedCriterion
+from model import CPCEncoder, CPCModel, CPCUnsupersivedCriterion, loadModel, getAR
 from trainer import run
 from datetime import datetime
 import os
@@ -8,7 +8,7 @@ import argparse
 from default_config import setDefaultConfig
 import sys
 import random
-from utils import setSeed, getCheckpointData, loadArgs, loadModel, getAR, SchedulerCombiner, rampSchedulingFunction
+from utils import setSeed, getCheckpointData, loadArgs, SchedulerCombiner, rampSchedulingFunction
 import json
 
 rawAudioPath = 'data/musicnet_lousy/train_data'
@@ -178,10 +178,9 @@ def main(config):
 
     if config.load is not None:
         cpcModel, config.hiddenGar, config.hiddenEncoder = loadModel(config.load)
-
     else:
         # Encoder network
-        encoderNet = CPCEncoder(512, 'layerNorm', sincNet=config.sincNetEncoder)
+        encoderNet = CPCEncoder(config.hiddenEncoder, 'layerNorm', sincNet=config.sincNetEncoder)
         # AR Network
         arNet = getAR(config)
 

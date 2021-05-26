@@ -51,70 +51,6 @@ def getCheckpointData(pathDir):
     return os.path.abspath(data), logs, defaultArgs
 
 
-def getEncoder(args):
-
-    if args.encoder_type == 'mfcc':
-        from .model import MFCCEncoder
-        return MFCCEncoder(args.hiddenEncoder)
-    elif args.encoder_type == 'lfb':
-        from .model import LFBEnconder
-        return LFBEnconder(args.hiddenEncoder)
-    else:
-        from .model import CPCEncoder
-        return CPCEncoder(args.hiddenEncoder, args.normMode)
-
-
-def getAR(args):
-    if args.arMode == 'transformer':
-        arNet = buildTransformerAR(args.hiddenEncoder, 1,
-                                   args.sizeWindow // 160, args.abspos)
-        args.hiddenGar = args.hiddenEncoder
-    else:
-        arNet = CPCAR(args.hiddenEncoder, args.hiddenGar,
-                      args.samplingType == "sequential",
-                      args.nLevelsGRU,
-                      mode=args.arMode,
-                      reverse=args.cpcMode == "reverse")
-    return arNet
-
-
-def loadModel(pathCheckpoints, loadStateDict=True):
-    models = []
-    hiddenGar, hiddenEncoder = 0, 0
-    for path in pathCheckpoints:
-        print(f"Loading checkpoint {path}")
-        _, _, locArgs = getCheckpointData(os.path.dirname(path))
-
-        doLoad = locArgs.load is not None and \
-            (len(locArgs.load) > 1 or
-             os.path.dirname(locArgs.load[0]) != os.path.dirname(path))
-
-        if doLoad:
-            m_, hg, he = loadModel(locArgs.load, loadStateDict=False)
-            hiddenGar += hg
-            hiddenEncoder += he
-        else:
-            encoderNet = getEncoder(locArgs)
-
-            arNet = getAR(locArgs)
-            m_ = CPCModel(encoderNet, arNet)
-
-        if loadStateDict:
-            print(f"Loading the state dict at {path}")
-            state_dict = torch.load(path, 'cpu')
-            m_.load_state_dict(state_dict["gEncoder"], strict=False)
-        if not doLoad:
-            hiddenGar += locArgs.hiddenGar
-            hiddenEncoder += locArgs.hiddenEncoder
-
-        models.append(m_)
-
-    if len(models) == 1:
-        return models[0], hiddenGar, hiddenEncoder
-
-    return ConcatenatedModel(models), hiddenGar, hiddenEncoder
-
-
 class SchedulerCombiner:
     r"""
     An object which applies a list of learning rate schedulers sequentially.
@@ -160,3 +96,50 @@ def rampSchedulingFunction(n_epoch_ramp, epoch):
         return 1
     else:
         return (epoch + 1) / n_epoch_ramp
+
+
+def updateLogs(logs, logStep, prevlogs=None):
+    out = {}
+    for key in logs:
+        out[key] = deepcopy(logs[key])
+
+        if prevlogs is not None:
+            out[key] -= prevlogs[key]
+        out[key] /= logStep
+    return out
+
+
+def saveLogs(data, pathLogs):
+    with open(pathLogs, 'w') as file:
+        json.dump(data, file, indent=2)
+
+
+def saveCheckpoint(modelState, criterionState, optimizerState, bestState,
+                   pathCheckpoint):
+    state_dict = {"gEncoder": modelState,
+                  "cpcCriterion": criterionState,
+                  "optimizer": optimizerState,
+                  "best": bestState}
+    torch.save(state_dict, pathCheckpoint)
+
+
+def showLogs(text, logs):
+    print("")
+    print('-' * 50)
+    print(text)
+
+    for key in logs:
+
+        if key == "iter":
+            continue
+
+        nPredicts = logs[key].shape[0]
+
+        strSteps = ['Step'] + [str(s) for s in range(1, nPredicts + 1)]
+        formatCommand = ' '.join(['{:>16}' for _ in range(nPredicts + 1)])
+        print(formatCommand.format(*strSteps))
+
+        strLog = [key] + ["{:10.6f}".format(s) for s in logs[key]]
+        print(formatCommand.format(*strLog))
+
+    print('-' * 50)

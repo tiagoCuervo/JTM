@@ -4,54 +4,7 @@ import time
 from copy import deepcopy
 # import matplotlib.pyplot as plt
 import json
-
-
-def update_logs(logs, logStep, prevlogs=None):
-    out = {}
-    for key in logs:
-        out[key] = deepcopy(logs[key])
-
-        if prevlogs is not None:
-            out[key] -= prevlogs[key]
-        out[key] /= logStep
-    return out
-
-
-def save_logs(data, pathLogs):
-    with open(pathLogs, 'w') as file:
-        json.dump(data, file, indent=2)
-
-
-def save_checkpoint(model_state, criterion_state, optimizer_state, best_state,
-                    path_checkpoint):
-    state_dict = {"gEncoder": model_state,
-                  "cpcCriterion": criterion_state,
-                  "optimizer": optimizer_state,
-                  "best": best_state}
-
-    torch.save(state_dict, path_checkpoint)
-
-
-def show_logs(text, logs):
-    print("")
-    print('-' * 50)
-    print(text)
-
-    for key in logs:
-
-        if key == "iter":
-            continue
-
-        nPredicts = logs[key].shape[0]
-
-        strSteps = ['Step'] + [str(s) for s in range(1, nPredicts + 1)]
-        formatCommand = ' '.join(['{:>16}' for _ in range(nPredicts + 1)])
-        print(formatCommand.format(*strSteps))
-
-        strLog = [key] + ["{:10.6f}".format(s) for s in logs[key]]
-        print(formatCommand.format(*strLog))
-
-    print('-' * 50)
+from utils import saveLogs, updateLogs, showLogs, saveCheckpoint
 
 
 def trainStep(dataLoader,
@@ -122,9 +75,9 @@ def trainStep(dataLoader,
             print(f"elapsed: {elapsed:.1f} s")
             print(
                 f"{1000.0 * elapsed / loggingStep:.1f} ms per batch, {1000.0 * elapsed / n_examples:.1f} ms / example")
-            locLogs = update_logs(logs, loggingStep, lastlogs)
+            locLogs = updateLogs(logs, loggingStep, lastlogs)
             lastlogs = deepcopy(logs)
-            show_logs("Training loss", locLogs)
+            showLogs("Training loss", locLogs)
             startTime, n_examples = new_time, 0
 
             if log2Board > 1:
@@ -137,9 +90,9 @@ def trainStep(dataLoader,
                 logWeights(cpcModel.gAR, totalSteps + iterCtr, experiment)
                 logWeights(cpcCriterion.wPrediction, totalSteps + iterCtr, experiment)
 
-    logs = update_logs(logs, iterCtr)
+    logs = updateLogs(logs, iterCtr)
     logs["iter"] = iterCtr
-    show_logs("Average training loss on epoch", logs)
+    showLogs("Average training loss on epoch", logs)
     return logs
 
 
@@ -174,9 +127,9 @@ def valStep(dataLoader,
         logs["locLoss_val"] += allLosses.mean(dim=0).cpu().numpy()
         logs["locAcc_val"] += allAcc.mean(dim=0).cpu().numpy()
 
-    logs = update_logs(logs, iterCtr)
+    logs = updateLogs(logs, iterCtr)
     logs["iter"] = iterCtr
-    show_logs("Validation loss:", logs)
+    showLogs("Validation loss:", logs)
     return logs
 
 
@@ -286,17 +239,17 @@ def trainingLoop(trainDataset,
                 modelStateDict = cpcModel.state_dict()
                 criterionStateDict = cpcCriterion.state_dict()
 
-                save_checkpoint(modelStateDict, criterionStateDict, optimizer.state_dict(), bestStateDict,
+                saveCheckpoint(modelStateDict, criterionStateDict, optimizer.state_dict(), bestStateDict,
                                 f"{pathCheckpoint}_{epoch}.pt")
-                save_logs(logs, pathCheckpoint + "_logs.json")
+                saveLogs(logs, pathCheckpoint + "_logs.json")
     except KeyboardInterrupt:
         if pathCheckpoint is not None:
             modelStateDict = cpcModel.state_dict()
             criterionStateDict = cpcCriterion.state_dict()
 
-            save_checkpoint(modelStateDict, criterionStateDict, optimizer.state_dict(), bestStateDict,
+            saveCheckpoint(modelStateDict, criterionStateDict, optimizer.state_dict(), bestStateDict,
                             f"{pathCheckpoint}_{epoch}_interrupted.pt")
-            save_logs(logs, pathCheckpoint + "_logs.json")
+            saveLogs(logs, pathCheckpoint + "_logs.json")
         return
 
 

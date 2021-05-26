@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import math
 import numpy as np
+from utils import getCheckpointData
+import os
 
 
 class ChannelNorm(nn.Module):
@@ -529,3 +531,54 @@ def buildTransformerAR(dimEncoded,  # Output dimension of the encoder
                                        dmodel=dimEncoded, abspos=abspos)
                       for _ in range(nLayers)]
     return nn.Sequential(*layerSequence)
+
+
+def getAR(args):
+    if args.arMode == 'transformer':
+        arNet = buildTransformerAR(args.hiddenEncoder, 1,
+                                   args.sizeWindow // 160, args.abspos)
+        args.hiddenGar = args.hiddenEncoder
+    else:
+        arNet = CPCAR(args.hiddenEncoder, args.hiddenGar,
+                      args.samplingType == "sequential",
+                      args.nLevelsGRU,
+                      mode=args.arMode,
+                      reverse=args.cpcMode == "reverse")
+    return arNet
+
+
+def loadModel(pathCheckpoints, loadStateDict=True):
+    models = []
+    hiddenGar, hiddenEncoder = 0, 0
+    for path in pathCheckpoints:
+        print(f"Loading checkpoint {path}")
+        _, _, locArgs = getCheckpointData(os.path.dirname(path))
+
+        doLoad = locArgs.load is not None and \
+            (len(locArgs.load) > 1 or
+             os.path.dirname(locArgs.load[0]) != os.path.dirname(path))
+
+        if doLoad:
+            m_, hg, he = loadModel(locArgs.load, loadStateDict=False)
+            hiddenGar += hg
+            hiddenEncoder += he
+        else:
+            encoderNet = CPCEncoder(locArgs.hiddenEncoder, 'layerNorm', sincNet=config.sincNetEncoder)
+
+            arNet = getAR(locArgs)
+            m_ = CPCModel(encoderNet, arNet)
+
+        if loadStateDict:
+            print(f"Loading the state dict at {path}")
+            state_dict = torch.load(path, 'cpu')
+            m_.load_state_dict(state_dict["gEncoder"], strict=False)
+        if not doLoad:
+            hiddenGar += locArgs.hiddenGar
+            hiddenEncoder += locArgs.hiddenEncoder
+
+        models.append(m_)
+
+    if len(models) == 1:
+        return models[0], hiddenGar, hiddenEncoder
+
+    return ConcatenatedModel(models), hiddenGar, hiddenEncoder
