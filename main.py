@@ -16,14 +16,14 @@ metadataPathTrain = 'data/musicnet_lousy/metadata_train.csv'
 metadataPathVal = 'data/musicnet_lousy/metadata_train.csv'
 
 
-def getCriterion(args):
-    if not args.supervised:
-        cpcCriterion = CPCUnsupersivedCriterion(nPredicts=args.nPredicts,
-                                                dimOutputAR=args.hiddenGAr,
-                                                dimOutputEncoder=args.hiddenEncoder,
-                                                negativeSamplingExt=args.negativeSamplingExt,
-                                                mode=args.cpcMode,
-                                                dropout=args.dropout)
+def getCriterion(config):
+    if not config.supervised:
+        cpcCriterion = CPCUnsupersivedCriterion(nPredicts=config.nPredicts,
+                                                dimOutputAR=config.hiddenGAr,
+                                                dimOutputEncoder=config.hiddenEncoder,
+                                                negativeSamplingExt=config.negativeSamplingExt,
+                                                mode=config.cpcMode,
+                                                dropout=config.dropout)
     else:
         raise NotImplementedError
     return cpcCriterion
@@ -113,53 +113,53 @@ def parseArgs(argv):
     # group_gpu.add_argument('--batchSizeGPU', type=int, default=8, help='Number of batches per GPU.')
     # parser.add_argument('--debug', action='store_true', help="Load only a very small amount of files for "
     #                                                          "debugging purposes.")
-    args = parser.parse_args(argv)
+    config = parser.parse_args(argv)
 
     if not (os.path.exists(rawAudioPath) and os.path.exists(metadataPathTrain) and os.path.exists(metadataPathVal)):
         print("Please make sure the following paths exist:\n"
               f"1. {rawAudioPath}\n2. {metadataPathTrain}\n3. {metadataPathVal}")
         sys.exit()
 
-    if args.pathCheckpoint is not None:
-        args.pathCheckpoint = os.path.abspath(args.pathCheckpoint)
+    if config.pathCheckpoint is not None:
+        config.pathCheckpoint = os.path.abspath(config.pathCheckpoint)
 
-    if args.load is not None:
-        args.load = [os.path.abspath(x) for x in args.load]
+    if config.load is not None:
+        config.load = [os.path.abspath(x) for x in config.load]
 
     # Set it up if needed, so that it is dumped along with other args
-    if args.randomSeed is None:
-        args.randomSeed = random.randint(0, 2 ** 31)
+    if config.randomSeed is None:
+        config.randomSeed = random.randint(0, 2 ** 31)
 
-    return args
+    return config
 
 
-def main(args):
-    args = parseArgs(args)
-    setSeed(args.random_seed)
-    logs = {"epoch": [], "iter": [], "saveStep": args.saveStep, "loggingStep": args.loggingStep}
+def main(config):
+    config = parseArgs(config)
+    setSeed(config.random_seed)
+    logs = {"epoch": [], "iter": [], "saveStep": config.saveStep, "loggingStep": config.loggingStep}
 
     loadOptimizer = False
-    if args.pathCheckpoint is not None:
-        cdata = getCheckpointData(args.pathCheckpoint)
+    if config.pathCheckpoint is not None:
+        cdata = getCheckpointData(config.pathCheckpoint)
         if cdata is not None:
             data, logs, locArgs = cdata
             print(f"Checkpoint detected at {data}")
-            loadArgs(args, locArgs, forbiddenAttr={"nGPU", "pathCheckpoint", "maxChunksInMem", "chunkSize"})
-            args.load, loadOptimizer = [data], True
-            args.loadCriterion = True
+            loadArgs(config, locArgs, forbiddenAttr={"nGPU", "pathCheckpoint", "maxChunksInMem", "chunkSize"})
+            config.load, loadOptimizer = [data], True
+            config.loadCriterion = True
 
-    print(f'CONFIG: \n{json.dumps(vars(args), indent=4, sort_keys=True)}')
+    print(f'CONFIG: \n{json.dumps(vars(config), indent=4, sort_keys=True)}')
     print('-' * 50)
 
     useGPU = torch.cuda.is_available()
     print("Loading the training dataset")
     trainDataset = AudioBatchData(rawAudioPath='data/musicnet_lousy/train_data',
                                   metadataPath='data/musicnet_lousy/metadata_train.csv',
-                                  sizeWindow=args.sizeWindow,
-                                  labelsBy=args.labelsBy,
+                                  sizeWindow=config.sizeWindow,
+                                  labelsBy=config.labelsBy,
                                   outputPath='data/musicnet_lousy/train_data/train',
-                                  CHUNK_SIZE=args.chunkSize,
-                                  NUM_CHUNKS_INMEM=args.maxChunksInMem,
+                                  CHUNK_SIZE=config.chunkSize,
+                                  NUM_CHUNKS_INMEM=config.maxChunksInMem,
                                   useGPU=useGPU)
     print("Training dataset loaded")
     print("")
@@ -167,37 +167,37 @@ def main(args):
     print("Loading the validation dataset")
     valDataset = AudioBatchData(rawAudioPath='data/musicnet_lousy/train_data',
                                 metadataPath='data/musicnet_lousy/metadata_val.csv',
-                                sizeWindow=args.sizeWindow,
-                                labelsBy=args.labelsBy,
+                                sizeWindow=config.sizeWindow,
+                                labelsBy=config.labelsBy,
                                 outputPath='data/musicnet_lousy/train_data/val',
-                                CHUNK_SIZE=args.chunkSize,
-                                NUM_CHUNKS_INMEM=args.maxChunksInMem,
+                                CHUNK_SIZE=config.chunkSize,
+                                NUM_CHUNKS_INMEM=config.maxChunksInMem,
                                 useGPU=False)
     print("Validation dataset loaded")
     print("")
 
-    if args.load is not None:
-        cpcModel, args.hiddenGar, args.hiddenEncoder = loadModel(args.load)
+    if config.load is not None:
+        cpcModel, config.hiddenGar, config.hiddenEncoder = loadModel(config.load)
 
     else:
         # Encoder network
-        encoderNet = CPCEncoder(512, 'layerNorm', sincNet=args.sincNetEncoder)
+        encoderNet = CPCEncoder(512, 'layerNorm', sincNet=config.sincNetEncoder)
         # AR Network
-        arNet = getAR(args)
+        arNet = getAR(config)
 
         cpcModel = CPCModel(encoderNet, arNet)
 
-    batchSize = args.batchSize
-    cpcModel.supervised = args.supervised
+    batchSize = config.batchSize
+    cpcModel.supervised = config.supervised
 
     # Training criterion
-    if args.load is not None and args.loadCriterion:
-        cpcCriterion = loadCriterion(args.load[0])
+    if config.load is not None and config.loadCriterion:
+        cpcCriterion = loadCriterion(config.load[0])
     else:
-        cpcCriterion = getCriterion(args)
+        cpcCriterion = getCriterion(config)
 
     if loadOptimizer:
-        stateDict = torch.load(args.load[0], 'cpu')
+        stateDict = torch.load(config.load[0], 'cpu')
         cpcCriterion.load_state_dict(stateDict["cpcCriterion"])
 
     if useGPU:
@@ -206,31 +206,31 @@ def main(args):
 
     # Optimizer
     gParams = list(cpcCriterion.parameters()) + list(cpcModel.parameters())
-    lr = args.learningRate
-    optimizer = torch.optim.Adam(gParams, lr=lr, betas=(args.beta1, args.beta2), eps=args.epsilon)
+    lr = config.learningRate
+    optimizer = torch.optim.Adam(gParams, lr=lr, betas=(config.beta1, config.beta2), eps=config.epsilon)
 
     if loadOptimizer:
-        print("Loading optimizer " + args.load[0])
-        state_dict = torch.load(args.load[0], 'cpu')
+        print("Loading optimizer " + config.load[0])
+        state_dict = torch.load(config.load[0], 'cpu')
         if "optimizer" in state_dict:
             optimizer.load_state_dict(state_dict["optimizer"])
 
     # Checkpoint
-    expDescription = f'{samplingType}_'
-    if samplingType == 'samecategory':
-        expDescription += f'{labelsBy}_'
+    expDescription = f'{config.samplingType}_'
+    if config.samplingType == 'samecategory':
+        expDescription += f'{config.labelsBy}_'
 
     pathCheckpoint = f'logs/{expDescription}{datetime.now().strftime("%d-%m_%H-%M-%S")}'
     os.makedirs(pathCheckpoint, exist_ok=True)
     pathCheckpoint = os.path.join(pathCheckpoint, "checkpoint")
 
     scheduler = None
-    if args.schedulerStep > 0:
+    if config.schedulerStep > 0:
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                    args.schedulerStep,
+                                                    config.schedulerStep,
                                                     gamma=0.5)
-    if args.schedulerRamp is not None:
-        n_epoch = args.schedulerRamp
+    if config.schedulerRamp is not None:
+        n_epoch = config.schedulerRamp
         print(f"Ramp activated. n_e = {n_epoch}")
         scheduler_ramp = torch.optim.lr_scheduler.LambdaLR(optimizer,
                                                            lr_lambda=lambda epoch: rampSchedulingFunction(n_epoch,
@@ -239,21 +239,19 @@ def main(args):
         if scheduler is None:
             scheduler = scheduler_ramp
         else:
-            scheduler = SchedulerCombiner([scheduler_ramp, scheduler], [0, args.schedulerRamp])
+            scheduler = SchedulerCombiner([scheduler_ramp, scheduler], [0, config.schedulerRamp])
     if scheduler is not None:
         for i in range(len(logs["epoch"])):
             scheduler.step()
 
     experiment = None
-    if args.log2Board:
-        from comet_ml import Experiment
+    if config.log2Board:
         import comet_ml
-
         comet_ml.init(project_name="jtm", workspace="tiagocuervo")
-        experiment = Experiment()
+        experiment = comet_ml.Experiment()
 
-    run(trainDataset, valDataset, batchSize, samplingType, cpcModel, cpcCriterion, args.nEpoch, optimizer,
-        pathCheckpoint, logs, useGPU, log2Board=args.log2Board, experiment=experiment)
+    run(trainDataset, valDataset, batchSize, config.samplingType, cpcModel, cpcCriterion, config.nEpoch, optimizer,
+        pathCheckpoint, logs, useGPU, log2Board=config.log2Board, experiment=experiment)
 
 
 if __name__ == "__main__":
