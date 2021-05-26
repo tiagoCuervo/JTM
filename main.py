@@ -227,7 +227,6 @@ def main(config):
         comet_ml.init(project_name="jtm", workspace="tiagocuervo")
         experiment = comet_ml.Experiment(cometKey)
         experiment.log_parameters(vars(config))
-        assert False
 
     run(trainDataset, valDataset, batchSize, config.samplingType, cpcModel, cpcCriterion, config.nEpoch, optimizer,
         scheduler, pathCheckpoint, logs, useGPU, log2Board=config.log2Board, experiment=experiment)
