@@ -9,6 +9,7 @@ def trainStep(dataLoader,
               cpcModel,
               cpcCriterion,
               optimizer,
+              scheduler,
               loggingStep,
               useGPU,
               log2Board,
@@ -88,6 +89,8 @@ def trainStep(dataLoader,
                 logWeights(cpcModel.gAR, totalSteps + iterCtr, experiment)
                 logWeights(cpcCriterion.wPrediction, totalSteps + iterCtr, experiment)
 
+    if scheduler is not None:
+        scheduler.step()
     logs = updateLogs(logs, iterCtr)
     logs["iter"] = iterCtr
     showLogs("Average training loss on epoch", logs)
@@ -172,6 +175,7 @@ def trainingLoop(trainDataset,
                  cpcCriterion,
                  nEpoch,
                  optimizer,
+                 scheduler,
                  pathCheckpoint,
                  logs,
                  useGPU,
@@ -195,7 +199,7 @@ def trainingLoop(trainDataset,
             print("Training dataset %d batches, Validation dataset %d batches, batch size %d" %
                   (len(trainLoader), len(valLoader), batchSize))
 
-            locLogsTrain = trainStep(trainLoader, cpcModel, cpcCriterion, optimizer, logs["logging_step"],
+            locLogsTrain = trainStep(trainLoader, cpcModel, cpcCriterion, optimizer, scheduler, logs["logging_step"],
                                      useGPU, log2Board, totalSteps, experiment)
 
             totalSteps += locLogsTrain['iter']
@@ -259,6 +263,7 @@ def run(trainDataset,
         cpcCriterion,
         nEpoch,
         optimizer,
+        scheduler,
         pathCheckpoint,
         logs,
         useGPU,
@@ -267,8 +272,8 @@ def run(trainDataset,
     if log2Board:
         with experiment.train():
             trainingLoop(trainDataset, valDataset, batchSize, samplingMode, cpcModel, cpcCriterion, nEpoch, optimizer,
-                         pathCheckpoint, logs, useGPU, log2Board, experiment)
+                         scheduler, pathCheckpoint, logs, useGPU, log2Board, experiment)
             experiment.end()
     else:
         trainingLoop(trainDataset, valDataset, batchSize, samplingMode, cpcModel, cpcCriterion, nEpoch, optimizer,
-                     pathCheckpoint, logs, useGPU, log2Board, experiment)
+                     scheduler, pathCheckpoint, logs, useGPU, log2Board, experiment)

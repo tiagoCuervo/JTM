@@ -86,11 +86,13 @@ def parseArgs(argv):
                            help="Frequency (in epochs) at which a checkpoint "
                                 "should be saved")
     groupSave.add_argument('--log2Board', type=int, default=2,
-                           help="0 : do not log to Comet\n1 : log only losses\n>1 : log histograms of weights"
-                                "and gradients.\nFor log2Board > 0 you will need to provide Comet.ml credentials. ")
+                           help="Defines what (if any) data to log to Comet.ml:\n"
+                                "\t0 : do not log to Comet\n\t1 : log losses and accuracy\n\t>1 : log histograms of "
+                                "weights and gradients.\nFor log2Board > 0 you will need to provide Comet.ml "
+                                "credentials.")
     groupLoad = parser.add_argument_group('Load')
     groupLoad.add_argument('--load', type=str, default=None, nargs='*',
-                           help="Load an exsiting checkpoint. Should give a path "
+                           help="Load an existing checkpoint. Should give a path "
                                 "to a .pt file. The directory containing the file to "
                                 "load should also have a 'checkpoint.logs' and a "
                                 "'checkpoint.args'")
@@ -111,9 +113,6 @@ def parseArgs(argv):
     #                                                          "debugging purposes.")
     config = parser.parse_args(argv)
 
-    if config.pathCheckpoint is not None:
-        config.pathCheckpoint = os.path.abspath(config.pathCheckpoint)
-
     if config.load is not None:
         config.load = [os.path.abspath(x) for x in config.load]
 
@@ -126,12 +125,12 @@ def parseArgs(argv):
 
 def main(config):
     if not (os.path.exists(rawAudioPath) and os.path.exists(metadataPathTrain) and os.path.exists(metadataPathVal)):
-        print("Please make sure the following paths exist:\n"
+        print("The audio data and csv metadata must be located in the following paths:\n"
               f"1. {rawAudioPath}\n2. {metadataPathTrain}\n3. {metadataPathVal}")
         sys.exit()
 
     config = parseArgs(config)
-    setSeed(config.random_seed)
+    setSeed(config.randomSeed)
     logs = {"epoch": [], "iter": [], "saveStep": config.saveStep, "loggingStep": config.loggingStep}
 
     loadOptimizer = False
@@ -149,8 +148,8 @@ def main(config):
 
     useGPU = torch.cuda.is_available()
     print("Loading the training dataset")
-    trainDataset = AudioBatchData(rawAudioPath='data/musicnet_lousy/train_data',
-                                  metadataPath='data/musicnet_lousy/metadata_train.csv',
+    trainDataset = AudioBatchData(rawAudioPath=rawAudioPath,
+                                  metadataPath=metadataPathTrain,
                                   sizeWindow=config.sizeWindow,
                                   labelsBy=config.labelsBy,
                                   outputPath='data/musicnet_lousy/train_data/train',
@@ -161,8 +160,8 @@ def main(config):
     print("")
 
     print("Loading the validation dataset")
-    valDataset = AudioBatchData(rawAudioPath='data/musicnet_lousy/train_data',
-                                metadataPath='data/musicnet_lousy/metadata_val.csv',
+    valDataset = AudioBatchData(rawAudioPath=rawAudioPath,
+                                metadataPath=metadataPathVal,
                                 sizeWindow=config.sizeWindow,
                                 labelsBy=config.labelsBy,
                                 outputPath='data/musicnet_lousy/train_data/val',
@@ -246,7 +245,7 @@ def main(config):
         experiment = comet_ml.Experiment()
 
     run(trainDataset, valDataset, batchSize, config.samplingType, cpcModel, cpcCriterion, config.nEpoch, optimizer,
-        pathCheckpoint, logs, useGPU, log2Board=config.log2Board, experiment=experiment)
+        scheduler, pathCheckpoint, logs, useGPU, log2Board=config.log2Board, experiment=experiment)
 
 
 if __name__ == "__main__":
