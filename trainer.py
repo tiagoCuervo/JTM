@@ -216,14 +216,12 @@ def trainingLoop(trainDataset,
 
             if log2Board:
                 for t in range(len(locLogsVal["locLoss_val"])):
-                    experiment.log_metric(f"Losses/epoch/locLoss_train_{t}",
-                                          locLogsTrain["locLoss_train"][t] / locLogsTrain['iter'], step=epoch)
-                    experiment.log_metric(f"Accuracy/epoch/locAcc_train_{t}",
-                                          locLogsTrain["locAcc_train"][t] / locLogsTrain['iter'], step=epoch)
-                    experiment.log_metric(f"Losses/epoch/locLoss_val_{t}", locLogsVal["locLoss_val"][t]
-                                          / locLogsVal['iter'], step=epoch)
-                    experiment.log_metric(f"Accuracy/epoch/locAcc_val_{t}", locLogsVal["locAcc_val"][t]
-                                          / locLogsVal['iter'], step=epoch)
+                    experiment.log_metric(f"Losses/epoch/locLoss_train_{t}", locLogsTrain["locLoss_train"][t],
+                                          step=epoch)
+                    experiment.log_metric(f"Accuracy/epoch/locAcc_train_{t}", locLogsTrain["locAcc_train"][t],
+                                          step=epoch)
+                    experiment.log_metric(f"Losses/epoch/locLoss_val_{t}", locLogsVal["locLoss_val"][t], step=epoch)
+                    experiment.log_metric(f"Accuracy/epoch/locAcc_val_{t}", locLogsVal["locAcc_val"][t], step=epoch)
 
             if currentAccuracy > bestAcc:
                 bestStateDict = cpcModel.state_dict()
