@@ -1,4 +1,8 @@
-import comet_ml
+try:
+    # noinspection PyUnresolvedReferences
+    import comet_ml
+except ImportError:
+    pass
 import torch
 from dataloader import AudioBatchData
 from model import CPCEncoder, CPCModel, CPCUnsupersivedCriterion, loadModel, getAR
