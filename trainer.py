@@ -39,7 +39,7 @@ def trainStep(dataLoader,
             batchData = batchData.cuda(non_blocking=True)
             label = label.cuda(non_blocking=True)
         c_feature, encoded_data, label = cpcModel(batchData, label)
-        allLosses, allAcc = cpcCriterion(c_feature, encoded_data)
+        allLosses, allAcc = cpcCriterion(c_feature, encoded_data, label)
         totLoss = allLosses.sum()
 
         totLoss.backward()
@@ -118,7 +118,7 @@ def valStep(dataLoader,
 
         with torch.no_grad():
             c_feature, encoded_data, label = cpcModel(batchData, label)
-            allLosses, allAcc = cpcCriterion(c_feature, encoded_data)
+            allLosses, allAcc = cpcCriterion(c_feature, encoded_data, label)
 
         if "locLoss_val" not in logs:
             logs["locLoss_val"] = np.zeros(allLosses.size(1))
@@ -145,7 +145,8 @@ def updateGradientMap(model, gradMap):
         for i in range(len(paramName)):
             param = getattr(param, paramName[i])
         gradMap.setdefault("%s/%s" % ("Gradients", name), 0)
-        gradMap["%s/%s" % ("Gradients", name)] += param.grad
+        if param.grad is not None:
+            gradMap["%s/%s" % ("Gradients", name)] += param.grad
     return gradMap
 
 

@@ -5,7 +5,7 @@ except ImportError:
     pass
 import torch
 from dataloader import AudioBatchData
-from model import CPCEncoder, CPCModel, CPCUnsupersivedCriterion, loadModel, getAR
+from model import CPCEncoder, CPCModel, CPCUnsupersivedCriterion, loadModel, getAR, CategoryCriterion
 from trainer import run
 from datetime import datetime
 import os
@@ -19,7 +19,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 
-def getCriterion(config):
+def getCriterion(config, downsampling, nClasses=None):
     if not config.supervised:
         cpcCriterion = CPCUnsupersivedCriterion(nPredicts=config.nPredicts,
                                                 dimOutputAR=config.hiddenGar,
@@ -28,13 +28,13 @@ def getCriterion(config):
                                                 mode=config.cpcMode,
                                                 dropout=config.dropout)
     else:
-        raise NotImplementedError
+        cpcCriterion = CategoryCriterion(config.hiddenGar, config.sizeWindow, downsampling, nClasses, pool=(4, 0, 4))
     return cpcCriterion
 
 
-def loadCriterion(pathCheckpoint):
+def loadCriterion(pathCheckpoint, downsampling, nClasses):
     _, _, locArgs = getCheckpointData(os.path.dirname(pathCheckpoint))
-    criterion = getCriterion(locArgs)
+    criterion = getCriterion(locArgs, downsampling, nClasses)
 
     state_dict = torch.load(pathCheckpoint, 'cpu')
 
@@ -67,6 +67,10 @@ def parseArgs(argv):
                                   help='Disable the CPC loss and activate '
                                   'the supervised mode. By default, the supervised '
                                   'training method is the ensemble classification.')
+    # group_supervised.add_argument('--task', action='store_true',
+    #                               help='Disable the CPC loss and activate '
+    #                                    'the supervised mode. By default, the supervised '
+    #                                    'training method is the ensemble classification.')
     groupSave = parser.add_argument_group('Save')
     groupSave.add_argument('--pathCheckpoint', type=str, default=None,
                            help="Path of the output directory.")
@@ -181,7 +185,7 @@ def main(config):
     print("")
 
     if config.load is not None:
-        cpcModel, config.hiddenGar, config.hiddenEncoder = loadModel(config.load)
+        cpcModel, config.hiddenGar, config.hiddenEncoder = loadModel(config.load, config)
     else:
         # Encoder network
         encoderNet = CPCEncoder(config.hiddenEncoder, 'layerNorm', sincNet=config.encoderType == 'sinc')
@@ -195,9 +199,11 @@ def main(config):
 
     # Training criterion
     if config.load is not None and config.loadCriterion:
-        cpcCriterion = loadCriterion(config.load[0])
+        cpcCriterion = loadCriterion(config.load[0], cpcModel.gEncoder.DOWNSAMPLING,
+                                     len(metadataTrain[config.labelsBy].unique()))
     else:
-        cpcCriterion = getCriterion(config)
+        cpcCriterion = getCriterion(config, cpcModel.gEncoder.DOWNSAMPLING,
+                                    len(metadataTrain[config.labelsBy].unique()))
 
     if loadOptimizer:
         stateDict = torch.load(config.load[0], 'cpu')

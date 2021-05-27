@@ -1,7 +1,7 @@
 import random
 import torch
 import numpy as np
-import argparse
+# import argparse
 from default_config import getDefaultConfig
 import os
 import json
@@ -40,12 +40,12 @@ def getCheckpointData(pathDir):
     with open(os.path.join(pathDir, 'checkpoint_logs.json'), 'rb') as file:
         logs = json.load(file)
 
-    with open(os.path.join(pathDir, 'checkpoint_args.json'), 'rb') as file:
-        args = json.load(file)
+    # with open(os.path.join(pathDir, 'checkpoint_args.json'), 'rb') as file:
+        # args = json.load(file)
 
-    args = argparse.Namespace(**args)
+    # args = argparse.Namespace(**args)
     defaultArgs = getDefaultConfig()
-    loadArgs(defaultArgs, args)
+    # loadArgs(defaultArgs, args)
 
     return os.path.abspath(data), logs, defaultArgs
 

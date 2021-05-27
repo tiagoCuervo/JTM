@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 import numpy as np
-from utils import getCheckpointData
+# from utils import getCheckpointData
 import os
 
 
@@ -364,11 +364,7 @@ class CPCUnsupersivedCriterion(BaseCriterion):
 
         return outputs, labelLoss
 
-    def getInnerLoss(self):
-
-        return "orthoLoss", self.orthoLoss * self.wPrediction.orthoCriterion()
-
-    def forward(self, cFeature, encodedData):
+    def forward(self, cFeature, encodedData, label):
 
         if self.mode == "reverse":
             encodedData = torch.flip(encodedData, [1])
@@ -547,34 +543,34 @@ def getAR(args):
     return arNet
 
 
-def loadModel(pathCheckpoints, loadStateDict=True):
+def loadModel(pathCheckpoints, locArgs, loadStateDict=True):
     models = []
     hiddenGar, hiddenEncoder = 0, 0
     for path in pathCheckpoints:
         print(f"Loading checkpoint {path}")
-        _, _, locArgs = getCheckpointData(os.path.dirname(path))
+        # _, _, locArgs = getCheckpointData(os.path.dirname(path))
 
-        doLoad = locArgs.load is not None and \
-            (len(locArgs.load) > 1 or
-             os.path.dirname(locArgs.load[0]) != os.path.dirname(path))
+        # doLoad = locArgs.load is not None and \
+        #     (len(locArgs.load) > 1 or
+        #      os.path.dirname(locArgs.load[0]) != os.path.dirname(path))
 
-        if doLoad:
-            m_, hg, he = loadModel(locArgs.load, loadStateDict=False)
-            hiddenGar += hg
-            hiddenEncoder += he
-        else:
-            encoderNet = CPCEncoder(locArgs.hiddenEncoder, 'layerNorm', sincNet=locArgs.encoderType == 'sinc')
+        # if doLoad:
+        #     m_, hg, he = loadModel(locArgs.load, loadStateDict=False)
+        #     hiddenGar += hg
+        #     hiddenEncoder += he
+        # else:
+        encoderNet = CPCEncoder(locArgs.hiddenEncoder, 'layerNorm', sincNet=locArgs.encoderType == 'sinc')
 
-            arNet = getAR(locArgs)
-            m_ = CPCModel(encoderNet, arNet)
+        arNet = getAR(locArgs)
+        m_ = CPCModel(encoderNet, arNet)
 
         if loadStateDict:
             print(f"Loading the state dict at {path}")
             state_dict = torch.load(path, 'cpu')
             m_.load_state_dict(state_dict["gEncoder"], strict=False)
-        if not doLoad:
-            hiddenGar += locArgs.hiddenGar
-            hiddenEncoder += locArgs.hiddenEncoder
+
+        hiddenGar += locArgs.hiddenGar
+        hiddenEncoder += locArgs.hiddenEncoder
 
         models.append(m_)
 
@@ -582,3 +578,43 @@ def loadModel(pathCheckpoints, loadStateDict=True):
         return models[0], hiddenGar, hiddenEncoder
 
     return ConcatenatedModel(models), hiddenGar, hiddenEncoder
+
+
+class CategoryCriterion(BaseCriterion):
+
+    def __init__(self,
+                 hiddenGar,
+                 sizeWindow,
+                 downSampling,
+                 numClasses,
+                 pool=None):
+        super(CategoryCriterion, self).__init__()
+        if pool is not None:
+            kernelSize, padding, stride = pool
+            self.avgPool = nn.AvgPool1d(kernelSize, stride, padding)
+            self.numFeatures = hiddenGar * ((sizeWindow // downSampling) + 2 * padding - kernelSize) // stride + 1
+        else:
+            self.numFeatures = hiddenGar * (sizeWindow // downSampling)
+        self.numClasses = numClasses
+        self.lossCriterion = nn.CrossEntropyLoss()
+        # print("Num features: ", self.numFeatures)
+        # print("hiddenGar: ", hiddenGar)
+        # print("Seq length: ", (sizeWindow // downSampling))
+        # print("Pool: ", pool)
+        self.wPrediction = nn.Linear(self.numFeatures, numClasses)
+
+    def forward(self, cFeature, encodedData, label):
+        # if not model.optimize:
+        cFeature = cFeature.transpose(1, 2).detach()
+        # print(cFeature.size())
+        batchSize, dimAR, seqSize = cFeature.size()
+        if self.avgPool is not None:
+            cFeature = self.avgPool(cFeature)
+        # print(cFeature.size())
+        # assert False
+        x = cFeature.view(batchSize, self.numFeatures)
+        predictions = self.wPrediction(x)
+        loss = self.lossCriterion(predictions, label)
+        _, predsIndex = predictions.max(1)
+        accuracy = torch.sum(predsIndex == label).float().view(1, -1) / batchSize
+        return loss.view(1, -1), accuracy
