@@ -589,10 +589,11 @@ class CategoryCriterion(BaseCriterion):
                  numClasses,
                  pool=None):
         super(CategoryCriterion, self).__init__()
+        self.pool = pool
         if pool is not None:
             kernelSize, padding, stride = pool
             self.avgPool = nn.AvgPool1d(kernelSize, stride, padding)
-            self.numFeatures = hiddenGar * ((sizeWindow // downSampling) + 2 * padding - kernelSize) // stride + 1
+            self.numFeatures = hiddenGar * (((sizeWindow // downSampling) + 2 * padding - kernelSize) // stride + 1)
         else:
             self.numFeatures = hiddenGar * (sizeWindow // downSampling)
         self.numClasses = numClasses
@@ -603,16 +604,16 @@ class CategoryCriterion(BaseCriterion):
         # print("Pool: ", pool)
         self.wPrediction = nn.Linear(self.numFeatures, numClasses)
 
-    def forward(self, cFeature, encodedData, label):
+    def forward(self, x, encodedData, label):
         # if not model.optimize:
-        cFeature = cFeature.transpose(1, 2).detach()
+        x = x.transpose(1, 2).detach()
         # print(cFeature.size())
-        batchSize, dimAR, seqSize = cFeature.size()
-        if self.avgPool is not None:
-            cFeature = self.avgPool(cFeature)
+        batchSize, dimAR, seqSize = x.size()
+        if self.pool is not None:
+            x = self.avgPool(x)
         # print(cFeature.size())
         # assert False
-        x = cFeature.view(batchSize, self.numFeatures)
+        x = x.view(batchSize, self.numFeatures)
         predictions = self.wPrediction(x)
         loss = self.lossCriterion(predictions, label)
         _, predsIndex = predictions.max(1)
