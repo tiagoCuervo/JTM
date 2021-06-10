@@ -126,9 +126,7 @@ class AudioBatchData(Dataset):
             # if I understand this correctly, there is nothing more we need to do regarding this
             # - simply load them as labels in the latter functions
             if self.transcript_window is not None:
-                transcript = self._musicTranscripter(sequence,
-                                            self.rawLabelsPath / str(trackId) + '.csv',
-                                            self.transcript_window * 1000 / 16000)
+                transcript = self._musicTranscripter(sequence, self.rawLabelsPath / str(trackId) + '.csv')
                 transcriptions.append(transcript)
             packIds.append(trackId) # the Ids of songs are saved here if needed to be recalled for indexing later?
             pack.append(sequence)
@@ -313,7 +311,7 @@ class AudioBatchData(Dataset):
 
         for i in range(n_windows):
             
-            start= (i) * transcript_window_ms
+            start = (i) * transcript_window_ms
             end = (i+1) * transcript_window_ms
         
             notes = labeling[(labeling['start_time'] <= end) & \
