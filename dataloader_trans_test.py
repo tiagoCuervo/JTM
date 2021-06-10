@@ -42,7 +42,7 @@ class AudioBatchData(Dataset):
         self.rawLabelsPath = Path(rawLabelsPath)
         self.sizeWindow = sizeWindow
         self.useGPU = useGPU
-        self.transcript_window = transcript_window
+        self.transcript_window = (transcript_window) / 1000 * 16000
         # self.sequencesData = pd.read_csv(metadataPath, index_col='id')
         self.sequencesData = metadata.sort_values(by=labelsBy)
         # self.sequencesData[labelsBy] = self.sequencesData[labelsBy].astype('category')
@@ -128,7 +128,7 @@ class AudioBatchData(Dataset):
             if self.transcript_window is not None:
                 transcript = self._musicTranscripter(sequence,
                                             self.rawLabelsPath / str(trackId) + '.csv',
-                                            self.transcript_window)
+                                            self.transcript_window * 1000 / 16000)
                 transcriptions.append(transcript)
             packIds.append(trackId) # the Ids of songs are saved here if needed to be recalled for indexing later?
             pack.append(sequence)
@@ -220,8 +220,6 @@ class AudioBatchData(Dataset):
             del self.seqLabel
 
     def getCategoryLabel(self, idx):
-        # print(len(self.categoryLabel))
-        # print(self.categoryLabel)
         idCategory = next(x[0] for x in enumerate(self.categoryLabel) if x[1] > idx) - 1
         return self.labels[idCategory]
 
@@ -243,7 +241,6 @@ class AudioBatchData(Dataset):
             window_end   = (self.sizeWindow + idx) % self.transcript_window
             label = self.transcript[window_start:window_end, :]
         else:
-
             label = torch.tensor(self.getCategoryLabel(idx), dtype=torch.long)
 
         return outData, label
@@ -294,9 +291,7 @@ class AudioBatchData(Dataset):
     def _musicTranscripter(self, 
                            sequence,
                            labels_path,
-                           n_notes=128,
-                           window_size_ms=320,
-                           samplingRate=16000):
+                           n_notes=128):
     
         '''
         Provides binary target matrices denoting all instruments that play during
@@ -304,19 +299,22 @@ class AudioBatchData(Dataset):
         '''
 
         labeling = pd.read_csv(labels_path)
-        # convert time columns to seconds for simplicity
         labeling['start_time'] = labeling['start_time'] / 44100
         labeling['end_time'] = labeling['end_time'] / 44100
-        
-        downsample = self.transcript_window / 1000 * samplingRate
-        n_windows = int(np.ceil(sequence.shape[0] / downsample)) # allow for aggregating windows
+
+        ###################################################################
+        ########## POTENTIAL TROUBLES WITH THE NUMBER OF WINDOWS ##########
+        ###################################################################
+
+        n_windows = int(np.ceil(sequence.shape[0] / self.transcript_window)) # allow for aggregating windows
         transcript = torch.zeros(n_windows, n_notes + 1)
         
+        transcript_window_ms = self.transcript_window * 1000 / 16000
 
         for i in range(n_windows):
             
-            start= (i) * self.transcript_window / 1000
-            end = (i+1) * self.transcript_window / 1000
+            start= (i) * transcript_window_ms
+            end = (i+1) * transcript_window_ms
         
             notes = labeling[(labeling['start_time'] <= end) & \
                            (start<= labeling['start_time'])].note.values

@@ -28,7 +28,14 @@ def getCriterion(config, downsampling, nClasses=None):
                                                 mode=config.cpcMode,
                                                 dropout=config.dropout)
     else:
-        cpcCriterion = CategoryCriterion(config.hiddenGar, config.sizeWindow, downsampling, nClasses, pool=(4, 0, 4))
+        if config.task == 'classification':
+            cpcCriterion = CategoryCriterion(config.hiddenGar, config.sizeWindow, downsampling, nClasses, pool=(4, 0, 4))
+        elif config.task == 'transcription':
+            cpcCriterion = TranscriptionCriterion(config.hiddenGar, config.sizeWindow, downsampling, 
+                                                  pool=(config.transcriptionWindow/10, 0, config.transcriptionWindow/10))
+        else:
+            raise NotImplementedError
+
     return cpcCriterion
 
 
@@ -61,16 +68,18 @@ def parseArgs(argv):
     groupDb.add_argument('--labelsBy', type=str, default='ensemble',
                          help="What attribute of the data set to use as labels. Only important if 'samplingType' "
                               "is 'samecategory'")
-    group_supervised = parser.add_argument_group(
-        'Supervised mode')
+
+    group_supervised = parser.add_argument_group('Supervised mode')
     group_supervised.add_argument('--supervised', action='store_true',
                                   help='Disable the CPC loss and activate '
                                   'the supervised mode. By default, the supervised '
                                   'training method is the ensemble classification.')
-    # group_supervised.add_argument('--task', action='store_true',
-    #                               help='Disable the CPC loss and activate '
-    #                                    'the supervised mode. By default, the supervised '
-    #                                    'training method is the ensemble classification.')
+    group_supervised.add_argument('--task', type=str, default='classification',
+                                   help='Type of the donwstream task if in supeprvised mode. '
+                                        'Currently supported tasks are classification and transcription.')
+    group_supervised.add_argument('--transcriptionWindow', type=int, default=320,
+                                   help='Size of the transcription window (in ms) in the transcription downstream task.')
+
     groupSave = parser.add_argument_group('Save')
     groupSave.add_argument('--pathCheckpoint', type=str, default=None,
                            help="Path of the output directory.")
@@ -83,6 +92,7 @@ def parseArgs(argv):
                                 "\t0 : do not log to Comet\n\t1 : log losses and accuracy\n\t>1 : log histograms of "
                                 "weights and gradients.\nFor log2Board > 0 you will need to provide Comet.ml "
                                 "credentials.")
+
     groupLoad = parser.add_argument_group('Load')
     groupLoad.add_argument('--load', type=str, default=None, nargs='*',
                            help="Load an existing checkpoint. Should give a path "
@@ -168,7 +178,8 @@ def main(config):
                                   outputPath='data/musicnet_lousy/train_data/train',
                                   CHUNK_SIZE=config.chunkSize,
                                   NUM_CHUNKS_INMEM=config.maxChunksInMem,
-                                  useGPU=useGPU)
+                                  useGPU=useGPU,
+                                  transcript_window=config.transcriptionWindow)
     print("Training dataset loaded")
     print("")
 
@@ -180,7 +191,8 @@ def main(config):
                                 outputPath='data/musicnet_lousy/train_data/val',
                                 CHUNK_SIZE=config.chunkSize,
                                 NUM_CHUNKS_INMEM=config.maxChunksInMem,
-                                useGPU=False)
+                                useGPU=False,
+                                transcript_window=config.transcriptionWindow)
     print("Validation dataset loaded")
     print("")
 
@@ -203,7 +215,7 @@ def main(config):
                                      len(metadataTrain[config.labelsBy].unique()))
     else:
         cpcCriterion = getCriterion(config, cpcModel.gEncoder.DOWNSAMPLING,
-                                    len(metadataTrain[config.labelsBy].unique()))
+                                    len(metadataTrain[config.labelsBy].unique())) # change for transcription labels
 
     if loadOptimizer:
         stateDict = torch.load(config.load[0], 'cpu')
