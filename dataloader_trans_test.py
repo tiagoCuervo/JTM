@@ -12,14 +12,18 @@ import re
 import numpy as np
 import pandas as pd
 
+# change later
+from default_config import rawLabelsPath
+
 class AudioBatchData(Dataset):
 
     def __init__(self,
                  rawAudioPath,
-                 rawLabelsPath,
                  metadata,
                  sizeWindow,
+                 rawLabelsPath=rawLabelsPath,
                  labelsBy='composer',
+                 ensemble='Solo Piano',
                  outputPath=None,
                  CHUNK_SIZE=1e9,
                  NUM_CHUNKS_INMEM=2,
@@ -50,6 +54,7 @@ class AudioBatchData(Dataset):
 
         self.totSize = self.sequencesData['length'].sum()
 
+        self.filter_transcription = ensemble
         self.category = labelsBy
         self.labels = self.sequencesData[labelsBy + '_cat'].unique()
 
@@ -64,6 +69,8 @@ class AudioBatchData(Dataset):
         packages2Load = [fileName for fileName in os.listdir(self.chunksDir) if
                          re.match(r'chunk_.*[0-9]+.pickle', fileName)]
 
+        transcripts2Load = [fileName for fileName in os.listdir(self.chunksDir) if
+                                    re.match(r'transcript_.*[0-9]+.pickle', fileName)]
         if len(packages2Load) == 0:
             self._createChunks()
             packages2Load = [fileName for fileName in os.listdir(self.chunksDir) if
@@ -84,7 +91,9 @@ class AudioBatchData(Dataset):
         self.transcript_packs = []
         packOfChunks = []
         packOfTranscripts = []
-        for i, packagePath, transcriptPath in enumerate(zip(packages2Load, transcripts2Load)):
+
+        for i, packagesPaths in enumerate(zip(packages2Load, transcripts2Load)):
+            packagePath, transcriptPath = packagesPaths
             packOfChunks.append(packagePath)
             if self.transcript_window is not None:
                 packOfTranscripts.append(transcriptPath)
@@ -119,32 +128,35 @@ class AudioBatchData(Dataset):
         packageSize = 0
         packageIdx = 0
         for trackId in tqdm.tqdm(self.sequencesData.index):
-            sequence, samplingRate = librosa.load(self.rawAudioPath / (str(trackId) + '.wav'), sr=16000)
-            sequence = torch.tensor(sequence).float()
-            # the transcript is created alongside the data
-            # this ensures the same ordering when the data and the corresponding transcripts are loaded!!
-            # if I understand this correctly, there is nothing more we need to do regarding this
-            # - simply load them as labels in the latter functions
-            if self.transcript_window is not None:
-                transcript = self._musicTranscripter(sequence, self.rawLabelsPath / str(trackId) + '.csv')
-                transcriptions.append(transcript)
-            packIds.append(trackId) # the Ids of songs are saved here if needed to be recalled for indexing later?
-            pack.append(sequence)
-            packageSize += len(sequence) * 4
-            if packageSize >= self.CHUNK_SIZE:
-                print(f"Saved pack {packageIdx}")
-                with open(self.chunksDir / f'chunk_{packageIdx}.pickle', 'wb') as handle:
-                    pickle.dump(torch.cat(pack, dim=0), handle, protocol=pickle.HIGHEST_PROTOCOL)
-                with open(self.chunksDir / f'ids_{packageIdx}.pickle', 'wb') as handle:
-                    pickle.dump(packIds, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            if self.sequencesData.loc[trackId, 'ensemble'] == self.filter_transcription:
+                sequence, samplingRate = librosa.load(self.rawAudioPath / (str(trackId) + '.wav'), sr=16000)
+                sequence = torch.tensor(sequence).float()
+                # the transcript is created alongside the data
+                # this ensures the same ordering when the data and the corresponding transcripts are loaded!!
+                # if I understand this correctly, there is nothing more we need to do regarding this
+                # - simply load them as labels in the latter functions
                 if self.transcript_window is not None:
-                    with open(self.chunksDir / f'transcript_{packageIdx}.pickle', 'wb') as handle:
-                        pickle.dump(torch.cat(transcriptions, dim=0), handle, protocol=pickle.HIGHEST_PROTOCOL)
-                pack = []
-                transcriptions = []
-                packIds = []
-                packageSize = 0
-                packageIdx += 1
+                    transcript = self._musicTranscripter(sequence, f'{self.rawLabelsPath}/{str(trackId)}.csv')
+                    transcriptions.append(transcript)
+                packIds.append(trackId) # the Ids of songs are saved here if needed to be recalled for indexing later?
+                pack.append(sequence)
+                packageSize += len(sequence) * 4
+                if packageSize >= self.CHUNK_SIZE:
+                    print(f"Saved pack {packageIdx}")
+                    with open(self.chunksDir / f'chunk_{packageIdx}.pickle', 'wb') as handle:
+                        pickle.dump(torch.cat(pack, dim=0), handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    with open(self.chunksDir / f'ids_{packageIdx}.pickle', 'wb') as handle:
+                        pickle.dump(packIds, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    if self.transcript_window is not None:
+                        with open(self.chunksDir / f'transcript_{packageIdx}.pickle', 'wb') as handle:
+                            pickle.dump(torch.cat(transcriptions, dim=0), handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    pack = []
+                    transcriptions = []
+                    packIds = []
+                    packageSize = 0
+                    packageIdx += 1
+                else:
+                    continue
         print(f"Saved pack {packageIdx}")
         with open(self.chunksDir / f'chunk_{packageIdx}.pickle', 'wb') as handle:
             pickle.dump(torch.cat(pack, dim=0), handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -178,6 +190,7 @@ class AudioBatchData(Dataset):
                     self.categoryLabel.append(packageSize)
                     packageSize += np.unique(self.sequencesData.loc[seqId]['length'])[0]
                     self.seqLabel.append(packageSize)
+                packageIdx.append(packageSize)
             self.categoryLabel.append(packageSize)
 
             self.data = torch.empty(size=(packageSize,))
@@ -229,14 +242,15 @@ class AudioBatchData(Dataset):
             print(idx)
 
         outData = self.data[idx:(self.sizeWindow + idx)].view(1, -1)
-        
+    
         if self.transcript_window is not None:
             ##########################################################################
             # THIS SEEMS TO BE ALRIGHT PROVIDING SELF.TRANSCRIPT IS CREATED PROPERLY #
             ##########################################################################
             # label = self.transcript[idx:int(self.sizeWindow / self.transcript_window * idx), :]
-            window_start = idx % self.transcript_window
-            window_end   = (self.sizeWindow + idx) % self.transcript_window
+            
+            window_start = int(idx % self.transcript_window)
+            window_end   = int((self.sizeWindow + idx) % self.transcript_window)
             label = self.transcript[window_start:window_end, :]
         else:
             label = torch.tensor(self.getCategoryLabel(idx), dtype=torch.long)

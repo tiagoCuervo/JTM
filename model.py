@@ -630,14 +630,14 @@ class TranscriptionCriterion(BaseCriterion):
                  numClasses=129,
                  transcript_window=320,
                  pool=None):
-        super(CategoryCriterion, self).__init__()
+        super(TranscriptionCriterion, self).__init__()
         self.pool = pool
         if pool is not None:
             kernelSize, padding, stride = pool
             self.avgPool = nn.AvgPool1d(kernelSize, stride, padding)
-            self.numFeatures = hiddenGar * (((sizeWindow // downSampling) + 2 * padding - kernelSize) // stride + 1)
+            self.numFeatures = int(hiddenGar * (((sizeWindow // downSampling) + 2 * padding - kernelSize) // stride + 1))
         else:
-            self.numFeatures = hiddenGar * (sizeWindow // downSampling)
+            self.numFeatures = int(hiddenGar * (sizeWindow // downSampling))
         self.numClasses = numClasses
         self.lossCriterion = nn.BCEWithLogitsLoss()
         self.wPrediction = nn.Sequential(
@@ -649,19 +649,21 @@ class TranscriptionCriterion(BaseCriterion):
 
     def forward(self, x, encodedData, label):
         # get x of size (batch, 128, feat_dim) --> (N, L, C)
-        print(x.size)
         x = x.transpose(1, 2).detach()
         # x of size (batch, feat_dim, 128) --> (N, C, L)
         batchSize, dimAR, seqSize = x.size()
         if self.pool is not None:
             x = self.avgPool(x)
         # should have x of size (batch, feat_dim, n_transcription_windows)
-        x = x.view(batchSize, self.numFeatures * x.size[2])
-        label = label.view(batchSize, self.numClasses * x.size[2]) # hope these dimensions would be compatible
+        print( self.numFeatures, x.shape[2])
+        print(x.shape)
+        print(label.shape)
+        x = x.view(batchSize, self.numFeatures * x.shape[2])
+        label = label.view(batchSize, self.numClasses * x.shape[2]) # hope these dimensions would be compatible
         predictions = self.wPrediction(x_temp)
         loss = self.lossCriterion(predictions, label)
         predictions_sigm = nn.Sigmoid(predictions) 
         predsIndex = predictions_sigm > 0.5
-        accuracy += torch.sum(predsIndex == label).float().view(1, -1) / (batchSize * x.size[2] * label.size[2])
+        accuracy += torch.sum(predsIndex == label).float().view(1, -1) / (batchSize * x.shape[2] * label.shape[2])
 
         return loss.view(1, -1), accuracy, predsIndex

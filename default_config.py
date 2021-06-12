@@ -1,6 +1,7 @@
 import argparse
 
 rawAudioPath = 'data/musicnet_lousy/train_data'
+rawLabelsPath= 'data/musicnet_lousy/train_labels'
 metadataPathTrain = 'data/musicnet_metadata_train.csv'
 metadataPathTest = 'data/musicnet_metadata_test.csv'
 
