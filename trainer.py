@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import time
 from copy import deepcopy
-from utils import saveLogs, updateLogs, showLogs, saveCheckpoint
+# from utils import saveLogs, updateLogs, showLogs, saveCheckpoint
 
 
 def trainStep(dataLoader,
@@ -32,6 +32,9 @@ def trainStep(dataLoader,
         logWeights(cpcModel.gAR, totalSteps, experiment)
         logWeights(cpcCriterion.wPrediction, totalSteps, experiment)
 
+    predictions = []
+    targets = []
+
     for step, fulldata in enumerate(dataLoader):
         batchData, label = fulldata
         n_examples += batchData.size(0)
@@ -39,16 +42,19 @@ def trainStep(dataLoader,
             batchData = batchData.cuda(non_blocking=True)
             label = label.cuda(non_blocking=True)
         c_feature, encoded_data, label = cpcModel(batchData, label)
-        allLosses, allAcc = cpcCriterion(c_feature, encoded_data, label)
+        allLosses, allAcc, preds = cpcCriterion(c_feature, encoded_data, label)
         totLoss = allLosses.sum()
 
         totLoss.backward()
 
         if log2Board > 1:
-            gradmapGEncoder = updateGradientMap(cpcModel.gEncoder, gradmapGEncoder)
-            gradmapGAR = updateGradientMap(cpcModel.gAR, gradmapGAR)
+            if not cpcModel.supervised:
+                gradmapGEncoder = updateGradientMap(cpcModel.gEncoder, gradmapGEncoder)
+                gradmapGAR = updateGradientMap(cpcModel.gAR, gradmapGAR)
+            else:
+                predictions += preds.tolist()
+                targets += label.tolist()
             gradmapWPrediction = updateGradientMap(cpcCriterion.wPrediction, gradmapWPrediction)
-
         optimizer.step()
         optimizer.zero_grad()
 
@@ -80,18 +86,20 @@ def trainStep(dataLoader,
             startTime, n_examples = new_time, 0
 
             if log2Board > 1:
-                # Log gradients
-                logGradients(gradmapGEncoder, totalSteps + iterCtr, experiment, scaleBy=1.0 / iterCtr)
-                logGradients(gradmapGAR, totalSteps + iterCtr, experiment, scaleBy=1.0 / iterCtr)
-                logGradients(gradmapWPrediction, totalSteps + iterCtr, experiment, scaleBy=1.0 / iterCtr)
-                # Log weights
+                # Log gradients and weights
                 logWeights(cpcModel.gEncoder, totalSteps + iterCtr, experiment)
                 logWeights(cpcModel.gAR, totalSteps + iterCtr, experiment)
                 logWeights(cpcCriterion.wPrediction, totalSteps + iterCtr, experiment)
+                if not cpcModel.supervised:
+                    logGradients(gradmapGEncoder, totalSteps + iterCtr, experiment, scaleBy=1.0 / iterCtr)
+                    logGradients(gradmapGAR, totalSteps + iterCtr, experiment, scaleBy=1.0 / iterCtr)
+                logGradients(gradmapWPrediction, totalSteps + iterCtr, experiment, scaleBy=1.0 / iterCtr)
 
     if scheduler is not None:
         scheduler.step()
     logs = updateLogs(logs, iterCtr)
+    logs["predictions"] = predictions
+    logs["targets"] = targets
     logs["iter"] = iterCtr
     showLogs("Average training loss on epoch", logs)
     return logs
@@ -100,13 +108,17 @@ def trainStep(dataLoader,
 def valStep(dataLoader,
             cpcModel,
             cpcCriterion,
-            useGPU):
+            useGPU,
+            log2Board):
     cpcCriterion.eval()
     cpcModel.eval()
     logs = {}
     cpcCriterion.eval()
     cpcModel.eval()
     iterCtr = 0
+
+    predictions = []
+    targets = []
 
     for step, fulldata in enumerate(dataLoader):
 
@@ -118,7 +130,12 @@ def valStep(dataLoader,
 
         with torch.no_grad():
             c_feature, encoded_data, label = cpcModel(batchData, label)
-            allLosses, allAcc = cpcCriterion(c_feature, encoded_data, label)
+            allLosses, allAcc, preds = cpcCriterion(c_feature, encoded_data, label)
+
+        if log2Board > 1:
+            if cpcModel.supervised:
+                predictions += preds.tolist()
+                targets += label.tolist()
 
         if "locLoss_val" not in logs:
             logs["locLoss_val"] = np.zeros(allLosses.size(1))
@@ -129,6 +146,8 @@ def valStep(dataLoader,
         logs["locAcc_val"] += allAcc.mean(dim=0).cpu().numpy()
 
     logs = updateLogs(logs, iterCtr)
+    logs["predictions"] = predictions
+    logs["targets"] = targets
     logs["iter"] = iterCtr
     showLogs("Validation loss:", logs)
     return logs
@@ -145,8 +164,7 @@ def updateGradientMap(model, gradMap):
         for i in range(len(paramName)):
             param = getattr(param, paramName[i])
         gradMap.setdefault("%s/%s" % ("Gradients", name), 0)
-        if param.grad is not None:
-            gradMap["%s/%s" % ("Gradients", name)] += param.grad
+        gradMap["%s/%s" % ("Gradients", name)] += param.grad
     return gradMap
 
 
@@ -180,8 +198,8 @@ def trainingLoop(trainDataset,
                  pathCheckpoint,
                  logs,
                  useGPU,
-                 log2Board=0,
-                 experiment=None):
+                 log2Board,
+                 experiment):
     print(f"Running {nEpoch} epochs")
     startEpoch = len(logs["epoch"])
     bestAcc = 0
@@ -205,7 +223,7 @@ def trainingLoop(trainDataset,
 
             totalSteps += locLogsTrain['iter']
 
-            locLogsVal = valStep(valLoader, cpcModel, cpcCriterion, useGPU)
+            locLogsVal = valStep(valLoader, cpcModel, cpcCriterion, useGPU, log2Board)
 
             print(f'Ran {epoch + 1} epochs '
                   f'in {time.time() - startTime:.2f} seconds')
@@ -223,6 +241,20 @@ def trainingLoop(trainDataset,
                                           step=epoch)
                     experiment.log_metric(f"Losses/epoch/locLoss_val_{t}", locLogsVal["locLoss_val"][t], step=epoch)
                     experiment.log_metric(f"Accuracy/epoch/locAcc_val_{t}", locLogsVal["locAcc_val"][t], step=epoch)
+
+                if log2Board > 1:
+                    experiment.log_confusion_matrix(
+                        locLogsTrain["targets"], locLogsTrain["predictions"],
+                        epoch=epoch,
+                        title=f"Confusion matrix train set, Step #{epoch}",
+                        file_name=f"confusion-matrix-train-{epoch}.json",
+                    )
+                    experiment.log_confusion_matrix(
+                        locLogsVal["targets"], locLogsVal["predictions"],
+                        epoch=epoch,
+                        title=f"Confusion matrix validation set, Step #{epoch}",
+                        file_name=f"confusion-matrix-val-{epoch}.json",
+                    )
 
             if currentAccuracy > bestAcc:
                 bestStateDict = cpcModel.state_dict()

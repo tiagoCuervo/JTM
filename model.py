@@ -661,10 +661,9 @@ class TranscriptionCriterion(BaseCriterion):
         # x = x.contiguous().view(batchSize, 512*n_transcript_w)
         x = x.transpose(1, 2)
         predictions = self.wPrediction(x)
-        
         loss = self.lossCriterion(predictions, label)
         predictions_sigm = nn.Sigmoid()(predictions)
         predsIndex = predictions_sigm > 0.5
         accuracy = torch.sum(predsIndex == label).float().view(1, -1) / (batchSize * n_transcript_w * label.shape[2])
         # , predsIndex
-        return loss.view(1, -1), accuracy
+        return loss.view(1, -1), accuracy, predsIndex

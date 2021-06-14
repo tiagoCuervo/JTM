@@ -323,7 +323,7 @@ class AudioBatchData(Dataset):
         n_windows = int(np.ceil(sequence.shape[0] / self.transcript_window)) # allow for aggregating windows
         transcript = torch.zeros(n_windows, n_notes + 1)
         
-        transcript_window_ms = self.transcript_window * 1000 / 16000
+        transcript_window_ms = self.transcript_window / 16000
 
         for i in range(n_windows):
             
