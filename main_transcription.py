@@ -184,12 +184,6 @@ def main(config):
     print("Training dataset loaded")
     print("")
     #############
-    for fulldata in trainDataset:
-        batchdata, label = fulldata
-
-        print(batchdata.shape)
-        print(label.shape)
-        break
 
     print("Loading the validation dataset")
     valDataset = AudioBatchData(rawAudioPath=rawAudioPath,

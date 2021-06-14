@@ -641,8 +641,8 @@ class TranscriptionCriterion(BaseCriterion):
         self.numClasses = numClasses
         self.lossCriterion = nn.BCEWithLogitsLoss()
         self.wPrediction = nn.Sequential(
-            nn.Linear(self.numFeatures, 100), # possibly change n_neurons?
-            nn.BatchNorm1d(100),
+            nn.Linear(512, 100), # possibly change n_neurons?
+            nn.BatchNorm1d(4),
             nn.ReLU(),
             nn.Linear(100, numClasses)
         )
@@ -655,15 +655,16 @@ class TranscriptionCriterion(BaseCriterion):
         if self.pool is not None:
             x = self.avgPool(x)
         # should have x of size (batch, feat_dim, n_transcription_windows)
-        print( self.numFeatures, x.shape[2])
-        print(x.shape)
-        print(label.shape)
-        x = x.view(batchSize, self.numFeatures * x.shape[2])
-        label = label.view(batchSize, self.numClasses * x.shape[2]) # hope these dimensions would be compatible
-        predictions = self.wPrediction(x_temp)
-        loss = self.lossCriterion(predictions, label)
-        predictions_sigm = nn.Sigmoid(predictions) 
-        predsIndex = predictions_sigm > 0.5
-        accuracy += torch.sum(predsIndex == label).float().view(1, -1) / (batchSize * x.shape[2] * label.shape[2])
 
-        return loss.view(1, -1), accuracy, predsIndex
+        n_transcript_w = x.shape[2]
+        # label = label.view(batchSize, self.numClasses * n_transcript_w) # hope these dimensions would be compatible
+        # x = x.contiguous().view(batchSize, 512*n_transcript_w)
+        x = x.transpose(1, 2)
+        predictions = self.wPrediction(x)
+        
+        loss = self.lossCriterion(predictions, label)
+        predictions_sigm = nn.Sigmoid()(predictions)
+        predsIndex = predictions_sigm > 0.5
+        accuracy = torch.sum(predsIndex == label).float().view(1, -1) / (batchSize * n_transcript_w * label.shape[2])
+        # , predsIndex
+        return loss.view(1, -1), accuracy

@@ -181,7 +181,9 @@ class AudioBatchData(Dataset):
                 with open(self.chunksDir / (
                         'ids_' + self.packs[0][0].split('_', maxsplit=1)[-1]), 'rb') as handle:
                     chunkIds = pickle.load(handle)
-                self.previousCategory = self.sequencesData.loc[chunkIds[0]][self.category]
+
+                    self.previousCategory = self.sequencesData.loc[chunkIds[0]][self.category]
+
             for packagePath in self.packs[self.currentPack]:
                 with open(self.chunksDir / ('ids_' + packagePath.split('_', maxsplit=1)[-1]), 'rb') as handle:
                     chunkIds = pickle.load(handle)
@@ -248,9 +250,9 @@ class AudioBatchData(Dataset):
             # THIS SEEMS TO BE ALRIGHT PROVIDING SELF.TRANSCRIPT IS CREATED PROPERLY #
             ##########################################################################
             # label = self.transcript[idx:int(self.sizeWindow / self.transcript_window * idx), :]
-            
-            window_start = int(idx % self.transcript_window)
-            window_end   = int((self.sizeWindow + idx) % self.transcript_window)
+        
+            window_start = int(idx // self.transcript_window)
+            window_end   = int((self.sizeWindow + idx) // self.transcript_window)
             label = self.transcript[window_start:window_end, :]
         else:
             label = torch.tensor(self.getCategoryLabel(idx), dtype=torch.long)
