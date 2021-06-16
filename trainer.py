@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import time
 from copy import deepcopy
-# from utils import saveLogs, updateLogs, showLogs, saveCheckpoint
+from utils import saveLogs, updateLogs, showLogs, saveCheckpoint
 
 
 def trainStep(dataLoader,

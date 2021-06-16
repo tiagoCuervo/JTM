@@ -10,7 +10,11 @@ import time
 import pickle
 import re
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
+# change later
+from default_config import rawLabelsPath
 
 class AudioBatchData(Dataset):
 
@@ -18,11 +22,13 @@ class AudioBatchData(Dataset):
                  rawAudioPath,
                  metadata,
                  sizeWindow,
-                 labelsBy='composer',
+                 rawLabelsPath=rawLabelsPath,
+                 labelsBy='id',
                  outputPath=None,
                  CHUNK_SIZE=1e9,
                  NUM_CHUNKS_INMEM=2,
-                 useGPU=False):
+                 useGPU=False,
+                 transcript_window=160):
         """
         Args:
             - rawAudioPath (string): path to the raw audio files
@@ -32,22 +38,37 @@ class AudioBatchData(Dataset):
             - outputPath (string): path to the directory where chunks are to be created or are stored
             - CHUNK_SIZE (int): desired size in bytes of a chunk
             - NUM_CHUNKS_INMEM (int): target maximal size chunks of data to load in memory at a time
+            - transcript_window (int): size of the encoded window for transcription
         """
         self.NUM_CHUNKS_INMEM = NUM_CHUNKS_INMEM
         self.CHUNK_SIZE = CHUNK_SIZE
         self.rawAudioPath = Path(rawAudioPath)
+        self.rawLabelsPath = Path(rawLabelsPath)
         self.sizeWindow = sizeWindow
         self.useGPU = useGPU
+        self.transcript_window = (transcript_window)
 
-        # self.sequencesData = pd.read_csv(metadataPath, index_col='id')
-        self.sequencesData = metadata.sort_values(by=labelsBy)
-        # self.sequencesData[labelsBy] = self.sequencesData[labelsBy].astype('category')
-        # self.sequencesData[labelsBy] = self.sequencesData[labelsBy].cat.codes
+        if self.transcript_window is not None:
+            cols_to_sort_by = [labelsBy, 'start_time']
+        else:
+            cols_to_sort_by = labelsBy
 
-        self.totSize = self.sequencesData['length'].sum()
+        self.sequencesData = metadata.sort_values(by=cols_to_sort_by) # big concatenated csv
+
+        if self.transcript_window is not None:
+            for i in range(1, self.sequencesData['id_cat'].max() + 1):
+                self.sequencesData.loc[self.sequencesData['id_cat'] == i, 'start_time'] += \
+                                        self.sequencesData[self.sequencesData['id_cat'] < i]['length'].unique().cumsum()[-1]
+                self.sequencesData.loc[self.sequencesData['id_cat'] == i, 'end_time'] += \
+                                        self.sequencesData[self.sequencesData['id_cat'] < i]['length'].unique().cumsum()[-1]
+
+        if self.transcript_window is not None:
+            self.totSize = self.sequencesData.groupby('id')['length'].mean().values.sum()
+        else:
+            self.totSize = self.sequencesData['length'].sum()
 
         self.category = labelsBy
-        self.labels = self.sequencesData[labelsBy + '_cat'].unique()
+        self.labels = self.sequencesData[labelsBy + '_cat'].unique()        
 
         if outputPath is None:
             self.chunksDir = self.rawAudioPath / labelsBy
@@ -68,7 +89,11 @@ class AudioBatchData(Dataset):
             print("Chunks already exist at", self.chunksDir)
 
         self.packs = []
+        self.transcript_packs = []
         packOfChunks = []
+
+        #self.packs = []
+        #packOfChunks = []
         for i, packagePath in enumerate(packages2Load):
             packOfChunks.append(packagePath)
             if (i + 1) % self.NUM_CHUNKS_INMEM == 0:
@@ -93,7 +118,7 @@ class AudioBatchData(Dataset):
         packIds = []
         packageSize = 0
         packageIdx = 0
-        for trackId in tqdm.tqdm(self.sequencesData.index):
+        for trackId in tqdm.tqdm(self.sequencesData.id.unique()):
             sequence, samplingRate = librosa.load(self.rawAudioPath / (str(trackId) + '.wav'), sr=16000)
             sequence = torch.tensor(sequence).float()
             packIds.append(trackId)
@@ -129,17 +154,17 @@ class AudioBatchData(Dataset):
                 with open(self.chunksDir / (
                         'ids_' + self.packs[0][0].split('_', maxsplit=1)[-1]), 'rb') as handle:
                     chunkIds = pickle.load(handle)
-                self.previousCategory = self.sequencesData.loc[chunkIds[0]][self.category]
+                self.previousCategory = self.sequencesData[self.sequencesData['id'] == chunkIds[0]][self.category].iloc[0]
             for packagePath in self.packs[self.currentPack]:
                 with open(self.chunksDir / ('ids_' + packagePath.split('_', maxsplit=1)[-1]), 'rb') as handle:
                     chunkIds = pickle.load(handle)
                 for seqId in chunkIds:
-                    currentCategory = np.unique(self.sequencesData.loc[seqId][self.category])[0]
+                    currentCategory = np.unique(self.sequencesData[self.sequencesData['id'] == seqId][self.category])[0]
                     if currentCategory != self.previousCategory:
                         self.categoryLabel.append(packageSize)
                         # print(f"{self.previousCategory}, {self.categoryLabel[-2]}, {self.categoryLabel[-1]}")
                     self.previousCategory = currentCategory
-                    packageSize += np.unique(self.sequencesData.loc[seqId]['length'])[0]
+                    packageSize += np.unique(self.sequencesData[self.sequencesData['id'] == seqId]['length'])[0]
                     self.seqLabel.append(packageSize)
                 packageIdx.append(packageSize)
             self.categoryLabel.append(packageSize)
@@ -162,6 +187,7 @@ class AudioBatchData(Dataset):
             self.nextPack = 0
             self.sequenceIdx = 0
 
+
     def clear(self):
         if 'data' in self.__dict__:
             del self.data
@@ -171,8 +197,6 @@ class AudioBatchData(Dataset):
             del self.seqLabel
 
     def getCategoryLabel(self, idx):
-        # print(len(self.categoryLabel))
-        # print(self.categoryLabel)
         idCategory = next(x[0] for x in enumerate(self.categoryLabel) if x[1] > idx) - 1
         return self.labels[idCategory]
 
@@ -184,7 +208,14 @@ class AudioBatchData(Dataset):
             print(idx)
 
         outData = self.data[idx:(self.sizeWindow + idx)].view(1, -1)
-        label = torch.tensor(self.getCategoryLabel(idx), dtype=torch.long)
+    
+        if self.transcript_window is not None:
+            # transcription 'ad-hoc'
+            song_id = self.getCategoryLabel(idx)
+            label = self._musicTranscripter(idx, song_id)
+        else:
+            label = torch.tensor(self.getCategoryLabel(idx), dtype=torch.long)
+
         return outData, label
 
     def getBaseSampler(self, samplingType, batchSize, offset):
@@ -228,6 +259,72 @@ class AudioBatchData(Dataset):
             return self.getBaseSampler(samplingType, batchSize, offset)
 
         return AudioLoader(self, samplerCall, nLoops, self._loadNextPack, totSize, numWorkers)
+
+
+    def _musicTranscripter(self, transcript_start, song_id):
+        '''
+        Provides binary target matrices denoting all instruments that play during
+        for each window_size_ms window in the latent representations
+        '''
+
+        considered_df = self.sequencesData[self.sequencesData['id_cat'] == song_id]
+        n_windows = self.sizeWindow // self.transcript_window
+        transcript = torch.zeros(n_windows, 129)
+        end=0
+        
+        for i in range(n_windows):
+            
+            start = i * self.transcript_window + transcript_start
+            end = start + self.transcript_window
+
+            notes = considered_df[
+
+                (considered_df['start_time'].between(start, end)) | \
+
+                (considered_df['end_time'].between(start, end)) | \
+
+                ((considered_df['start_time'] < start) & (end < considered_df['end_time']))
+
+            ]['note'].unique()
+
+            # if transcript_start > 5e6:
+            #
+            #     print(notes)
+            #
+            #     xmin = considered_df[
+            #
+            #     (considered_df['start_time'].between(start, end)) | \
+            #
+            #     (considered_df['end_time'].between(start, end)) | \
+            #
+            #     ((considered_df['start_time'] < start) & (end < considered_df['end_time']))
+            #
+            #     ]['start_time'].values
+            #
+            #     xmax = considered_df[
+            #
+            #     (considered_df['start_time'].between(start, end)) | \
+            #
+            #     (considered_df['end_time'].between(start, end)) | \
+            #
+            #     ((considered_df['start_time'] < start) & (end < considered_df['end_time']))
+            #
+            #     ]['end_time'].values
+            #
+            #     plt.figure(figsize=(12, 6))
+            #     plt.hlines(notes, xmin, xmax, linewidth=8)
+            #     plt.savefig(f"id_{song_id}_start_{start}_end_{end}.png")
+            #     plt.close()
+
+            if len(notes) == 0:
+                # if silence, then instrument == 0 plays note == 0
+                transcript[i, 0] = 1
+            else:
+                transcript[i, notes] = 1
+
+        assert self.sizeWindow == end - transcript_start
+
+        return transcript
 
 
 class AudioLoader(object):

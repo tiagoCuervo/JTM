@@ -6,6 +6,7 @@ metadataPathTrain = 'data/musicnet_metadata_train.csv'
 metadataPathTest = 'data/musicnet_metadata_test.csv'
 
 
+
 def getDefaultConfig():
     parser = setDefaultConfig(argparse.ArgumentParser())
     return parser.parse_args([])
@@ -44,7 +45,7 @@ def setDefaultConfig(parser):
                        help='Number of samples per mini batch.')
     group.add_argument('--nEpoch', type=int, default=30,
                        help='Number of epoch to run')
-    group.add_argument('--samplingType', type=str, default='samesequence',
+    group.add_argument('--samplingType', type=str, default='uniform',
                        choices=['samecategory', 'uniform',
                                 'samesequence', 'sequential'],
                        help='How to sample the negative examples in the '

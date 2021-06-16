@@ -5,7 +5,7 @@ except ImportError:
     pass
 import torch
 from dataloader import AudioBatchData
-from model import CPCEncoder, CPCModel, CPCUnsupersivedCriterion, loadModel, getAR, CategoryCriterion
+from model import CPCEncoder, CPCModel, CPCUnsupersivedCriterion, loadModel, getAR, CategoryCriterion, TranscriptionCriterion
 from trainer import run
 from datetime import datetime
 import os
@@ -31,8 +31,8 @@ def getCriterion(config, downsampling, nClasses=None):
         if config.task == 'classification':
             cpcCriterion = CategoryCriterion(config.hiddenGar, config.sizeWindow, downsampling, nClasses, pool=(4, 0, 4))
         elif config.task == 'transcription':
-            cpcCriterion = TranscriptionCriterion(config.hiddenGar, config.sizeWindow, downsampling, 
-                                                  pool=(config.transcriptionWindow/10, 0, config.transcriptionWindow/10))
+            cpcCriterion = TranscriptionCriterion(config.hiddenGar, config.sizeWindow, downsampling, pool=None)
+                                                  #pool=(128/(config.transcriptionWindow/10), 0, 128/(config.transcriptionWindow/10)))
         else:
             raise NotImplementedError
 
@@ -62,10 +62,10 @@ def parseArgs(argv):
                               'since the last training session.')
     groupDb.add_argument('--chunkSize', type=int, default=1e9,
                          help='Size (in bytes) of a data chunk')
-    groupDb.add_argument('--maxChunksInMem', type=int, default=7,
+    groupDb.add_argument('--maxChunksInMem', type=int, default=2,
                          help='Maximal amount of data chunks a dataset '
                               'can hold in memory at any given time')
-    groupDb.add_argument('--labelsBy', type=str, default='ensemble',
+    groupDb.add_argument('--labelsBy', type=str, default='id',
                          help="What attribute of the data set to use as labels. Only important if 'samplingType' "
                               "is 'samecategory'")
 
@@ -74,10 +74,10 @@ def parseArgs(argv):
                                   help='Disable the CPC loss and activate '
                                   'the supervised mode. By default, the supervised '
                                   'training method is the ensemble classification.')
-    group_supervised.add_argument('--task', type=str, default='classification',
+    group_supervised.add_argument('--task', type=str, default='transcription',
                                    help='Type of the donwstream task if in supeprvised mode. '
                                         'Currently supported tasks are classification and transcription.')
-    group_supervised.add_argument('--transcriptionWindow', type=int, default=320,
+    group_supervised.add_argument('--transcriptionWindow', type=int, default=160,
                                    help='Size of the transcription window (in ms) in the transcription downstream task.')
 
     groupSave = parser.add_argument_group('Save')
@@ -87,7 +87,7 @@ def parseArgs(argv):
     groupSave.add_argument('--saveStep', type=int, default=1,
                            help="Frequency (in epochs) at which a checkpoint "
                                 "should be saved")
-    groupSave.add_argument('--log2Board', type=int, default=2,
+    groupSave.add_argument('--log2Board', type=int, default=1,
                            help="Defines what (if any) data to log to Comet.ml:\n"
                                 "\t0 : do not log to Comet\n\t1 : log losses and accuracy\n\t>1 : log histograms of "
                                 "weights and gradients.\nFor log2Board > 0 you will need to provide Comet.ml "
@@ -152,7 +152,10 @@ def main(config):
     useGPU = torch.cuda.is_available()
 
     if not os.path.exists(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv'):
-        musicNetMetadataTrain = pd.read_csv('data/musicnet_metadata_train.csv', index_col='id')
+        if config.transcriptionWindow is not None:
+           musicNetMetadataTrain = pd.read_csv('data/musicnet_metadata_transcript_train.csv')
+        else:
+           musicNetMetadataTrain = pd.read_csv('data/musicnet_metadata_train.csv', index = 'id')
         try:
             metadataTrain, metadataVal = train_test_split(musicNetMetadataTrain, test_size=0.1,
                                                           stratify=musicNetMetadataTrain[config.labelsBy])
@@ -167,8 +170,12 @@ def main(config):
         metadataTrain.to_csv(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv')
         metadataVal.to_csv(f'data/musicnet_metadata_train_{config.labelsBy}_valsplit.csv')
     else:
-        metadataTrain = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv', index_col='id')
-        metadataVal = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_valsplit.csv', index_col='id')
+        if config.transcriptionWindow is not None:
+           metadataTrain = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv')
+           metadataVal = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_valsplit.csv')
+        else:
+           metadataTrain = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv', index = 'id')
+           metadataVal = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_valsplit.csv', index = 'id')
 
     print("Loading the training dataset")
     trainDataset = AudioBatchData(rawAudioPath=rawAudioPath,

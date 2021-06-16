@@ -2,7 +2,7 @@ import random
 import torch
 import numpy as np
 # import argparse
-from default_config import getDefaultConfig
+# from default_config import getDefaultConfig
 import os
 import json
 from copy import deepcopy
@@ -129,7 +129,7 @@ def showLogs(text, logs):
 
     for key in logs:
 
-        if key == "iter":
+        if key in ["iter", "predictions", "targets"]:
             continue
 
         nPredicts = logs[key].shape[0]
