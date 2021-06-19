@@ -151,14 +151,24 @@ def main(config):
 
     useGPU = torch.cuda.is_available()
 
-    if not os.path.exists(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv'):
-        if config.transcriptionWindow is not None:
-           musicNetMetadataTrain = pd.read_csv('data/musicnet_metadata_transcript_train.csv')
-        else:
-           musicNetMetadataTrain = pd.read_csv('data/musicnet_metadata_train.csv', index = 'id')
+    metadata_dir = f'data/musicnet_metadata_train_transcription_{config.labelsBy}_trainsplit.csv' if \
+                           config.transcriptionWindow is not None \
+                           else f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv'
+
+    if not os.path.exists(metadata_dir):
+        # if config.transcriptionWindow is not None:
+        #    musicNetMetadataTrain = pd.read_csv('data/musicnet_metadata_transcript_train_alldata.csv')
+        # else:
+        musicNetMetadataTrain = pd.read_csv('data/musicnet_metadata_train.csv', index_col = 'id')
         try:
-            metadataTrain, metadataVal = train_test_split(musicNetMetadataTrain, test_size=0.1,
-                                                          stratify=musicNetMetadataTrain[config.labelsBy])
+            if config.transcriptionWindow is not None:
+               metadataTrain, metadataVal = train_test_split(musicNetMetadataTrain, test_size=0.1)
+                                                          # stratify=musicNetMetadataTrain[config.labelsBy])
+            else:
+               metadataTrain, metadataVal = train_test_split(musicNetMetadataTrain, test_size=0.1,
+                                                             stratify=musicNetMetadataTrain[config.labelsBy])
+            print(metadataTrain.shape, metadataVal.shape)
+
         except ValueError:
             for col, count in zip(musicNetMetadataTrain[config.labelsBy].value_counts().index,
                                   musicNetMetadataTrain[config.labelsBy].value_counts().values):
@@ -167,12 +177,19 @@ def main(config):
                     musicNetMetadataTrain = musicNetMetadataTrain.append(subDF)
             metadataTrain, metadataVal = train_test_split(musicNetMetadataTrain, test_size=0.1,
                                                           stratify=musicNetMetadataTrain[config.labelsBy])
-        metadataTrain.to_csv(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv')
-        metadataVal.to_csv(f'data/musicnet_metadata_train_{config.labelsBy}_valsplit.csv')
+        if config.transcriptionWindow is not None:
+           musicNetMetadataTranscript = pd.read_csv('data/musicnet_metadata_transcript_train_alldata.csv')
+           metadataTrain = musicNetMetadataTranscript[musicNetMetadataTranscript['id'].isin(metadataTrain.index)]
+           metadataVal = musicNetMetadataTranscript[musicNetMetadataTranscript['id'].isin(metadataVal.index)]
+           metadataTrain.to_csv(f'data/musicnet_metadata_train_transcription_{config.labelsBy}_trainsplit.csv')
+           metadataVal.to_csv(f'data/musicnet_metadata_train_transcription_{config.labelsBy}_valsplit.csv')
+        else:
+           metadataTrain.to_csv(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv')
+           metadataVal.to_csv(f'data/musicnet_metadata_train_{config.labelsBy}_valsplit.csv')
     else:
         if config.transcriptionWindow is not None:
-           metadataTrain = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv')
-           metadataVal = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_valsplit.csv')
+           metadataTrain = pd.read_csv(f'data/musicnet_metadata_train_transcription_{config.labelsBy}_trainsplit.csv')
+           metadataVal = pd.read_csv(f'data/musicnet_metadata_train_transcription_{config.labelsBy}_valsplit.csv')
         else:
            metadataTrain = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_trainsplit.csv', index = 'id')
            metadataVal = pd.read_csv(f'data/musicnet_metadata_train_{config.labelsBy}_valsplit.csv', index = 'id')

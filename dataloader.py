@@ -56,9 +56,10 @@ class AudioBatchData(Dataset):
         self.sequencesData = metadata.sort_values(by=cols_to_sort_by) # big concatenated csv
 
         if self.transcript_window is not None:
-            for i in range(1, self.sequencesData['id_cat'].max() + 1):
+            for i in self.sequencesData['id_cat'].unique()[1:]:
                 self.sequencesData.loc[self.sequencesData['id_cat'] == i, 'start_time'] += \
                                         self.sequencesData[self.sequencesData['id_cat'] < i]['length'].unique().cumsum()[-1]
+
                 self.sequencesData.loc[self.sequencesData['id_cat'] == i, 'end_time'] += \
                                         self.sequencesData[self.sequencesData['id_cat'] < i]['length'].unique().cumsum()[-1]
 
@@ -269,7 +270,8 @@ class AudioBatchData(Dataset):
 
         considered_df = self.sequencesData[self.sequencesData['id_cat'] == song_id]
         n_windows = self.sizeWindow // self.transcript_window
-        transcript = torch.zeros(n_windows, 129)
+        transcript = torch.zeros(n_windows, 11, 129) # n_instruments = 11
+        # transcript = torch.zeros(n_windows, 11, 129)
         end=0
         
         for i in range(n_windows):
@@ -277,7 +279,7 @@ class AudioBatchData(Dataset):
             start = i * self.transcript_window + transcript_start
             end = start + self.transcript_window
 
-            notes = considered_df[
+            window_considered = considered_df[
 
                 (considered_df['start_time'].between(start, end)) | \
 
@@ -285,11 +287,12 @@ class AudioBatchData(Dataset):
 
                 ((considered_df['start_time'] < start) & (end < considered_df['end_time']))
 
-            ]['note'].unique()
+            ][['note', 'instrument_cat']]
+
+            window_filtered = window_considered.groupby(by='instrument_cat')['note'].apply(lambda x: list(np.unique(x)))
 
             # if transcript_start > 5e6:
             #
-            #     print(notes)
             #
             #     xmin = considered_df[
             #
@@ -315,12 +318,22 @@ class AudioBatchData(Dataset):
             #     plt.hlines(notes, xmin, xmax, linewidth=8)
             #     plt.savefig(f"id_{song_id}_start_{start}_end_{end}.png")
             #     plt.close()
+            #
+            #     plt.figure(figsize=(12, 6))
+            #     plt.hlines(true_notes, xmin, xmax, linewidth=8)
+            #     plt.savefig(f"true_id_{song_id}_start_{start}_end_{end}.png")
+            #     plt.close()
 
-            if len(notes) == 0:
-                # if silence, then instrument == 0 plays note == 0
-                transcript[i, 0] = 1
+            if window_filtered.shape[0] == 0:
+                # if silence, then all instruments play note == 0
+                #transcript[i, 0] = 1
+                transcript[i, :,  0] = 1
             else:
-                transcript[i, notes] = 1
+                # transcript[i, notes] = 1
+                for idx in range(window_filtered.shape[0]):
+                    instrument = window_filtered.index[idx]
+                    notes = window_filtered.iloc[idx]
+                    transcript[i, instrument, notes] = 1
 
         assert self.sizeWindow == end - transcript_start
 

@@ -628,7 +628,6 @@ class TranscriptionCriterion(BaseCriterion):
                  sizeWindow,
                  downSampling,
                  numClasses=129,
-                 transcript_window=10,
                  pool=None):
         super(TranscriptionCriterion, self).__init__()
         self.pool = pool
@@ -640,30 +639,33 @@ class TranscriptionCriterion(BaseCriterion):
             self.numFeatures = int(hiddenGar * (sizeWindow // downSampling))
         print(self.numFeatures)
         self.numClasses = numClasses
-        self.lossCriterion = nn.BCEWithLogitsLoss()
+        # self.lossCriterion = nn.BCEWithLogitsLoss(pos_weight=)
         self.wPrediction = nn.Sequential(
             nn.Linear(self.numFeatures, 100), # possibly change n_neurons?
             nn.BatchNorm1d(100),
             nn.ReLU(),
-            nn.Linear(100, numClasses * (sizeWindow // downSampling))
+            nn.Linear(100, 11 * self.numClasses * (sizeWindow // downSampling))
         )
 
     def forward(self, x, encodedData, label):
         # get x of size (batch, 128, feat_dim) --> (N, L, C)
-        # x = x.transpose(1, 2).detach()
+        x = x.detach()
         # x of size (batch, feat_dim, 128) --> (N, C, L)
         batchSize, seqSize, dimAR = x.size()
 
         if self.pool is not None:
             x = self.avgPool(x)
-
-        label = label.contiguous().view(batchSize, self.numClasses * seqSize)
+        # 8 x 128 x 11 x 129
+        label = label.contiguous().view(batchSize, 11 * self.numClasses * seqSize)
         x = x.contiguous().view(batchSize, seqSize * dimAR)
 
         predictions = self.wPrediction(x)
         predictions_sigm = nn.Sigmoid()(predictions)
         predsIndex = predictions_sigm > 0.5
 
-        loss = self.lossCriterion(predictions, label)
+        #loss = self.lossCriterion(predictions, label)
+        weight = torch.empty(11 * self.numClasses * seqSize)
+        weight[:] = (label == 0).sum() / label.sum()
+        loss = nn.BCEWithLogitsLoss(pos_weight=weight.cuda())(predictions, label)
         accuracy = torch.sum(predsIndex == label).float().view(1, -1) / (batchSize * label.shape[1])
         return loss.view(1, -1), accuracy, predsIndex
