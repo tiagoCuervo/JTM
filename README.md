@@ -1,4 +1,4 @@
-**Jaka to Melodia (What's the melody): Contrastive Predictive Coding applied to music audio data** 
+# Jaka to Melodia (What's the melody): Contrastive Predictive Coding applied to music audio data
 
 In our team we had people wishing to explore self-supervised learning techniques, as well as people interested from long before on applying machine learning to music. Our project, ***Jaka to Melodia*** (*What's the melody*) was the solution to satisfy us all.
 
@@ -12,7 +12,17 @@ Our goal was then to use self-supervised algorithms to train a deep learning mod
 
 As our self-supervised algorithm we chose ***Contrastive Predictive Coding (CPC)*** ([van den Oord et al., 2019](https://arxiv.org/pdf/1807.03748.pdf)), a self-supervised algorithm quite well-suited for sequential data as it is music, and which we found  interesting not just conceptually, but because it is related to ongoing research in our university.
 
-# Suggested Usage
+## Data set
+
+We used the MusicNet data set [(Thickstun et al., 2016)](https://arxiv.org/pdf/1611.09827.pdf), a collection of 330 freely-licensed classical music recordings, together with over 1 million annotated labels indicating the precise time of each note in every recording, the instrument that plays each note, and the note's position in the metrical structure of the composition, as well as some aditional meta data, such as the ensemble of instruments used for the composition, and the composer.
+
+We chose MusicNet as its size was reasonable for our compute resources and purposes (~11 GB, 34 hours of music), it provided us with labels useful for multiple downstream tasks, and we thought that focusing on a single genre would make learning easier for the neural net as the data it would be trying to model was less diverse while still being reasonably complex (11 instruments arranged in 21 different ensembles).
+
+As MusicNet had a sampling frequency of 44.1 kHz, which was hard to deal with with our compute resources, we downsampled it to 16 kHz. **Each observation ($x_t$) consisted then of 20480 samples** (1.28 seconds of audio). 
+
+
+
+## Suggested Usage
 
 
 1. Install requirements.
@@ -35,6 +45,6 @@ As our self-supervised algorithm we chose ***Contrastive Predictive Coding (CPC)
     python main.py --supervised --load logs/checkpoint3.pt --maxChunksInMem 5
     ```
     
-# Results
+## Results
 
 A lengthy description of our project and the obtained results can be found under `notebooks/JTM progress report.ipynb`.
