@@ -18,7 +18,7 @@ We used the MusicNet data set [(Thickstun et al., 2016)](https://arxiv.org/pdf/1
 
 We chose MusicNet as its size was reasonable for our compute resources and purposes (~11 GB, 34 hours of music), it provided us with labels useful for multiple downstream tasks, and we thought that focusing on a single genre would make learning easier for the neural net as the data it would be trying to model was less diverse while still being reasonably complex (11 instruments arranged in 21 different ensembles).
 
-As MusicNet had a sampling frequency of 44.1 kHz, which was hard to deal with with our compute resources, we downsampled it to 16 kHz. **Each observation ($x_t$) consisted then of 20480 samples** (1.28 seconds of audio). 
+As MusicNet had a sampling frequency of 44.1 kHz, which was hard to deal with with our compute resources, we downsampled it to 16 kHz. Each observation consisted then of 20480 samples (1.28 seconds of audio). 
 
 
 
