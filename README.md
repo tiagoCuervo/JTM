@@ -27,7 +27,7 @@ As MusicNet had a sampling frequency of 44.1 kHz, which was hard to deal with wi
 
 1. Install requirements.
 
-    ```shell
+    ```
     pip install -r requirements.txt
     ```
     
@@ -35,13 +35,13 @@ As MusicNet had a sampling frequency of 44.1 kHz, which was hard to deal with wi
 
   For instance, for training a CPC model using a SincNet encoder, negative sampling from the sequence, and keeping at most 5 GB of data in memory use:
 
-    ```shell
+    ```
     python main.py --samplingType samesequence --useSincNet --maxChunksInMem 5
     ```
     
   For running on the downstream task of automatic music transcription using a previously trained CPC encoder stored in `logs/checkpoint3.pt` use:
     
-    ```shell
+    ```
     python main.py --supervised --load logs/checkpoint3.pt --maxChunksInMem 5
     ```
     
