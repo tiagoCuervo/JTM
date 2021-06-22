@@ -29,10 +29,10 @@ As our self-supervised algorithm we chose ***Contrastive Predictive Coding (CPC)
     python main.py --samplingType samesequence --useSincNet --maxChunksInMem 5
     ```
     
-  For running on the downstream task of automatic music transcription using a previously trained CPC encoder stored in `logs/chechkpoint3.pt` use:
+  For running on the downstream task of automatic music transcription using a previously trained CPC encoder stored in `logs/checkpoint3.pt` use:
     
     ```shell
-    python main.py --supervised --load logs/chechkpoint3.pt --maxChunksInMem 5
+    python main.py --supervised --load logs/checkpoint3.pt --maxChunksInMem 5
     ```
     
 # Results
